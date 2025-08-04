@@ -84,6 +84,16 @@ void TcpListening::maxConnSet(size_t maxConn)
 	mMaxConn = maxConn;
 }
 
+SOCKET TcpListening::nextPeerFd()
+{
+	PipeEntry<SOCKET> peerFdEntry;
+
+	if (ppPeerFd.get(peerFdEntry) < 1)
+		return INVALID_SOCKET;
+
+	return peerFdEntry.particle;
+}
+
 /*
 Literature socket programming:
 - http://man7.org/linux/man-pages/man2/poll.2.html
