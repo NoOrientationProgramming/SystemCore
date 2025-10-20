@@ -721,7 +721,7 @@ bool TcpTransfering::sockaddrInfoGet(struct sockaddr_storage &addr,
 								bool &isIPv6)
 {
 	char buf[INET6_ADDRSTRLEN];
-	size_t len = sizeof(buf) - 1;
+	size_t len = sizeof(buf);
 	const char *pRes;
 
 	if (addr.ss_family == AF_INET)
