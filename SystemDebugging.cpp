@@ -178,7 +178,7 @@ Success SystemDebugging::listenersStart()
 		return procErrLog(-1, "could not create process");
 
 	mpLstCmd->portSet(mPortStart + 4, mListenLocal);
-	mpLstCmd->maxConnSet(4);
+	mpLstCmd->maxConnQueuedSet(4);
 
 	start(mpLstCmd);
 
@@ -187,7 +187,7 @@ Success SystemDebugging::listenersStart()
 		return procErrLog(-1, "could not create process");
 
 	mpLstCmdAuto->portSet(mPortStart + 6, mListenLocal);
-	mpLstCmdAuto->maxConnSet(4);
+	mpLstCmdAuto->maxConnQueuedSet(4);
 
 	start(mpLstCmdAuto);
 

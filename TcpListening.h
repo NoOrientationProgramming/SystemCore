@@ -80,7 +80,7 @@ public:
 	}
 
 	void portSet(uint16_t port, bool localOnly = false);
-	void maxConnSet(size_t maxConn);
+	void maxConnQueuedSet(size_t maxConn);
 
 	SOCKET nextPeerFd();
 	Pipe<SOCKET> ppPeerFd;

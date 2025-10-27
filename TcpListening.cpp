@@ -79,7 +79,7 @@ void TcpListening::portSet(uint16_t port, bool localOnly)
 	mLocalOnly = localOnly;
 }
 
-void TcpListening::maxConnSet(size_t maxConn)
+void TcpListening::maxConnQueuedSet(size_t maxConn)
 {
 	mMaxConn = maxConn;
 }
