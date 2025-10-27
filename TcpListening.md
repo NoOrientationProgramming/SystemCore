@@ -106,7 +106,7 @@ It can be retrieved either through the `nextPeerFd()` getter or from the **ppPee
 
 ### `SOCKET nextPeerFd()`
 
-Retrieves the next accepted peer socket descriptor.
+Returns the next accepted peer socket descriptor.
 If no connection is pending, the function returns **INVALID_SOCKET**.
 
 ### `Pipe<SOCKET> ppPeerFd`
@@ -120,9 +120,9 @@ ssize_t get(PipeEntry<T> &entry);
 
 The function returns:
 
-* 1 – if a particle was successfully retrieved (the entry is valid),
+* 1 – if a particle was successfully fetched (the entry is valid),
 * 0 – if no particle is currently available,
-* -1 – if no more particles can be retrieved (the pipe has been closed or drained).
+* -1 – if no more particles are available (the pipe has been closed or drained).
 
 A PipeEntry contains two key components:
 
