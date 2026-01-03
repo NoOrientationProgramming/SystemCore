@@ -177,6 +177,7 @@ int16_t entryLogSimpleCreate(
 	}
 	va_end(args);
 
+	fprintf(pStream, "\r\n");
 	fflush(pStream);
 
 	return code;
