@@ -322,15 +322,36 @@ void SystemDebugging::commandInterpret()
 			break;
 		}
 
+		size_t lenId, lenShort;
+
 		pCmd = commands;
 		for (size_t i = 0; i < dNumCmds; ++i, ++pCmd)
 		{
-			if (CMD(pCmd->pId))
-				lenCmd = strlen(pCmd->pId);
+			lenId = strlen(pCmd->pId);
+			if (pCmd->pShortcut && pCmd->pShortcut[0])
+				lenShort = strlen(pCmd->pShortcut);
 			else
-			if (pCmd->pShortcut && pCmd->pShortcut[0] &&
-					CMD(pCmd->pShortcut))
-				lenCmd = strlen(pCmd->pShortcut);
+				lenShort = 0;
+
+			if (lenId >= cSzBufInCmd)
+				continue;
+
+			if (lenShort >= cSzBufInCmd)
+				continue;
+
+			if (CMD(pCmd->pId))
+				lenCmd = lenId;
+			else
+			if (lenShort)
+			{
+				if (strncmp(pSwt->mBufInCmd, pCmd->pShortcut, lenShort))
+					continue;
+
+				if (pSwt->mBufInCmd[lenShort] && pSwt->mBufInCmd[lenShort] != ' ')
+					continue;
+
+				lenCmd = lenShort;
+			}
 			else
 				continue;
 
