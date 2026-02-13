@@ -60,8 +60,6 @@ dProcessStateStr(CmdState);
 
 using namespace std;
 
-#define CMD(x)		(!strncmp(pSwt->mBufInCmd, x, strlen(x)))
-
 #ifndef dKeyModeDebug
 #define dKeyModeDebug "aaaaa"
 #endif
@@ -154,7 +152,7 @@ bool cmdReg(
 		const char *pDesc,
 		const char *pGroup)
 {
-	if (cSzBufInCmd < 3)
+	if (cSzBufInCmd < cSzBufMin)
 	{
 		errLog(-1, "err");
 		return false;
@@ -163,7 +161,7 @@ bool cmdReg(
 	bool foundPipe = false;
 	bool foundCh = false;
 	bool foundTerm = false;
-	size_t i = 0;
+	ssize_t i = 0;
 
 	while (1)
 	{
@@ -222,6 +220,9 @@ Success SystemDebugging::process()
 		if (!mpSend)
 			return procErrLog(-1, "err");
 
+		if (cSzBufInCmd < cSzBufMin || cSzBufOutCmd < cSzBufMin)
+			return procErrLog(-1, "err");
+
 		if (SingleWireTransfering::idStarted & cStartedDbg)
 			return procErrLog(-1, "err");
 
@@ -269,8 +270,10 @@ Success SystemDebugging::process()
 
 void SystemDebugging::commandInterpret()
 {
+	char *pIn, *pSpace, *pArg;
 	char *pBuf, *pBufEnd;
-	size_t lenCmd, szBuf;
+	int idMatched, shortMatched;
+	size_t szBuf;
 	Command *pCmd;
 
 	switch (mStateCmd)
@@ -283,15 +286,19 @@ void SystemDebugging::commandInterpret()
 		if (pSwt->mValidBuf & cBufValidOutCmd)
 			break;
 
+		pSwt->mBufInCmd[cSzBufInCmd - 1] = 0;
+
 		mStateCmd = StCmdInterpret;
 
 		break;
 	case StCmdInterpret: // interpret/decode and execute
 
-		//procInfLog("Received command: %s", pSwt->mBufInCmd);
+		pIn = pSwt->mBufInCmd;
+
+		//procInfLog("Received command: %s", pIn);
 
 		szBuf = sizeof(pSwt->mBufOutCmd);
-		if (szBuf < 3)
+		if (szBuf < cSzBufMin)
 		{
 			pSwt->mValidBuf &= ~cBufValidInCmd; // don't answer
 			mStateCmd = StCmdRcvdWait;
@@ -307,7 +314,7 @@ void SystemDebugging::commandInterpret()
 
 		*pBuf = 0; // dInfo!
 
-		if (CMD(dKeyModeDebug))
+		if (!strcmp(dKeyModeDebug, pIn))
 		{
 			pSwt->mModeDebug |= 1;
 			dInfo("Debug mode %d", pSwt->mModeDebug);
@@ -322,46 +329,28 @@ void SystemDebugging::commandInterpret()
 			break;
 		}
 
-		size_t lenId, lenShort;
+		pArg = &pSwt->mBufInCmd[cSzBufInCmd - 1];
+		pSpace = strchr(pIn, ' ');
+		if (pSpace)
+		{
+			*pSpace++ = 0;
+			pArg = pSpace;
+		}
 
 		pCmd = commands;
 		for (size_t i = 0; i < dNumCmds; ++i, ++pCmd)
 		{
-			lenId = strlen(pCmd->pId);
+			idMatched = !strcmp(pCmd->pId, pIn);
+
+			shortMatched = 0;
 			if (pCmd->pShortcut && pCmd->pShortcut[0])
-				lenShort = strlen(pCmd->pShortcut);
-			else
-				lenShort = 0;
+				shortMatched = !strcmp(pCmd->pShortcut, pIn);
 
-			if (lenId >= cSzBufInCmd)
-				continue;
-
-			if (lenShort >= cSzBufInCmd)
-				continue;
-
-			if (CMD(pCmd->pId))
-				lenCmd = lenId;
-			else
-			if (lenShort)
-			{
-				if (strncmp(pSwt->mBufInCmd, pCmd->pShortcut, lenShort))
-					continue;
-
-				if (pSwt->mBufInCmd[lenShort] && pSwt->mBufInCmd[lenShort] != ' ')
-					continue;
-
-				lenCmd = lenShort;
-			}
-			else
+			if (!idMatched && !shortMatched)
 				continue;
 
 			if (!pCmd->pFctExec)
 				continue;
-
-			char *pArg = pSwt->mBufInCmd + lenCmd;
-
-			if (*pArg)
-				++pArg;
 
 			pCmd->pFctExec(pArg, pBuf, pBufEnd);
 
@@ -402,7 +391,7 @@ void SystemDebugging::procTreeSend()
 	}
 
 	size_t szBuf = sizeof(pSwt->mBufOutProc);
-	if (szBuf < 3)
+	if (szBuf < cSzBufMin)
 		return;
 
 	if (pSwt->mValidBuf & cBufValidOutProc)
@@ -504,7 +493,7 @@ void SystemDebugging::entryLogEnqueue(
 		return;
 
 	size_t szBuf = sizeof(pSwt->mBufOutLog);
-	if (szBuf < 3)
+	if (szBuf < cSzBufMin)
 		return;
 
 	if (pSwt->mValidBuf & cBufValidOutLog)
