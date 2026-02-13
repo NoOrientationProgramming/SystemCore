@@ -43,6 +43,7 @@ const uint8_t cBufValidOutProc = 1 << 6;
 
 typedef void (*FuncDataSend)(char *pData, size_t len, void *pUser);
 
+const uint8_t cSzBufMin = 3;
 const uint8_t cSzBufInCmd = 64; // max. 255!
 const size_t cSzBufOutProc = 1024;
 const size_t cSzBufOutLog = 256;
