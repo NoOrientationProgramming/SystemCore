@@ -270,7 +270,8 @@ Success SystemDebugging::process()
 
 void SystemDebugging::commandInterpret()
 {
-	char *pIn, *pSpace, *pArg;
+	const char *pIn;
+	char *pSpace, *pArg;
 	char *pBuf, *pBufEnd;
 	int idMatched, shortMatched;
 	size_t szBuf;
