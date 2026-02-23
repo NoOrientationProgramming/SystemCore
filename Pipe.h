@@ -325,14 +325,14 @@ public:
 #if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(mParentListMtx);
 #endif
-		PipeListIter iter = mParentList.begin();
-		while (iter != mParentList.end())
+		while (!mParentList.empty())
 		{
-			(*iter)->childRemove(this);
+			Pipe<T> *pParent = mParentList.front();
+			pParent->childRemove(this);
 #if DEBUG_PIPE
-			std::cout << this << "->parentDisconnect(" << pParent << ") - 1: " << *iter << std::endl;
+			std::cout << this << "->parentDisconnect(" << pParent << ") - 1" << std::endl;
 #endif
-			iter = mParentList.erase(iter);
+			mParentList.pop_front();
 #if DEBUG_PIPE
 			std::cout << this << "->parentDisconnect(" << pParent << ") - 2" << std::endl;
 #endif
@@ -468,14 +468,14 @@ private:
 #if CONFIG_PROC_HAVE_DRIVERS
 		Guard lock(*pMtx);
 #endif
-		PipeListIter iter = pList->begin();
-		while (iter != pList->end())
+		while (!pList->empty())
 		{
+			Pipe<T> *pPipe = pList->front();
 #if DEBUG_PIPE
-			std::cout << "listDelete(): " << *iter << ", " << this << std::endl;
+			std::cout << "listDelete(): " << pPipe << ", " << this << std::endl;
 #endif
-			((*iter)->*pFunc)(this);
-			iter = pList->erase(iter);
+			(pPipe->*pFunc)(this);
+			pList->pop_front();
 		}
 	}
 
