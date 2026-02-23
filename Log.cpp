@@ -28,19 +28,27 @@
   SOFTWARE.
 */
 
+#ifndef CONFIG_PROC_HAVE_DRIVERS
+#if defined(__STDCPP_THREADS__)
+#define CONFIG_PROC_HAVE_DRIVERS				1
+#else
+#define CONFIG_PROC_HAVE_DRIVERS				0
+#endif
+#endif
+
 #ifndef CONFIG_PROC_LOG_HAVE_CHRONO
 #if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_CHRONO			1
+#define CONFIG_PROC_LOG_HAVE_CHRONO				1
 #else
-#define CONFIG_PROC_LOG_HAVE_CHRONO			0
+#define CONFIG_PROC_LOG_HAVE_CHRONO				0
 #endif
 #endif
 
 #ifndef CONFIG_PROC_LOG_HAVE_STDOUT
 #if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_STDOUT			1
+#define CONFIG_PROC_LOG_HAVE_STDOUT				1
 #else
-#define CONFIG_PROC_LOG_HAVE_STDOUT			0
+#define CONFIG_PROC_LOG_HAVE_STDOUT				0
 #endif
 #endif
 
@@ -53,6 +61,7 @@
 #include <time.h>
 #endif
 #if CONFIG_PROC_HAVE_DRIVERS
+#include <thread>
 #include <mutex>
 #endif
 #ifdef _WIN32
@@ -335,6 +344,7 @@ int16_t entryLogCreate(
 		{
 			SetConsoleTextAttribute(hConsole, red);
 			fprintf(stderr, "%s\r\n", pBufStart);
+			fflush(stderr);
 			SetConsoleTextAttribute(hConsole, colorBkup);
 		}
 		else
@@ -342,6 +352,7 @@ int16_t entryLogCreate(
 		{
 			SetConsoleTextAttribute(hConsole, yellow);
 			fprintf(stderr, "%s\r\n", pBufStart);
+			fflush(stderr);
 			SetConsoleTextAttribute(hConsole, colorBkup);
 		}
 		else
@@ -349,12 +360,14 @@ int16_t entryLogCreate(
 		{
 			SetConsoleTextAttribute(hConsole, cyan);
 			fprintf(stdout, "%s\r\n", pBufStart);
+			fflush(stdout);
 			SetConsoleTextAttribute(hConsole, colorBkup);
 		}
 		else
 		{
 			SetConsoleTextAttribute(hConsole, dColorInfo);
 			fprintf(stdout, "%s\r\n", pBufStart);
+			fflush(stdout);
 			SetConsoleTextAttribute(hConsole, colorBkup);
 		}
 #else
