@@ -118,9 +118,7 @@ linesPrint()
 
 		if [ "${bName: -3}" == "ing" ]; then
 			numProcs=$((numProcs + 1))
-		fi
-
-		if [ "${bName:0:3}" == "Lib" ]; then
+		elif [ "${bName:0:3}" == "Lib" ]; then
 			numLibs=$((numLibs + 1))
 		fi
 
