@@ -104,6 +104,7 @@ const WORD dColorDefault = 7;
 const char *red = "\033[0;31m";
 const char *yellow = "\033[0;33m";
 const char *cyan = "\033[0;36m";
+const char *purple = "\033[0;35m";
 const char *dColorDefault = "\033[39m";
 #endif
 
@@ -379,10 +380,13 @@ static int toConsoleWrite(char *pBufStart,
 	if (severity == 2)
 		fprintf(stderr, "%s%s%s\r\n", yellow, pBufStart, dColorDefault);
 	else
-	if (severity >= 4)
+	if (severity == 3)
+		fprintf(stdout, "%s%s%s\r\n", dColorInfo, pBufStart, dColorDefault);
+	else
+	if (severity == 4)
 		fprintf(stdout, "%s%s%s\r\n", cyan, pBufStart, dColorDefault);
 	else
-		fprintf(stdout, "%s%s%s\r\n", dColorInfo, pBufStart, dColorDefault);
+		fprintf(stdout, "%s%s%s\r\n", purple, pBufStart, dColorDefault);
 #endif
 #endif
 	return 0;
