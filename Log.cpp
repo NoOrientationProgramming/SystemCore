@@ -192,18 +192,19 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-size_t blockWhenAdd(char *pBuf, char *pBufEnd)
+static int blockWhenAdd(char *pBuf, char *pBufEnd)
 {
-	size_t szBuf = pBufEnd - pBuf;
-	size_t res;
-
+	int szBuf = pBufEnd - pBuf;
+	int lenDone;
+	int res;
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 	// get time
 	system_clock::time_point t = system_clock::now();
 	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
 
 	// build day
 	time_t tTt = system_clock::to_time_t(t);
+	char timeBuf[32];
 	tm tTm {};
 #ifdef _WIN32
 	::localtime_s(&tTm, &tTt);
@@ -212,7 +213,7 @@ size_t blockWhenAdd(char *pBuf, char *pBufEnd)
 #endif
 	res = strftime(pBuf, sizeof(szBuf), "%Y-%m-%d", &tTm);
 	if (!res)
-		return -1;
+		return 0;
 
 	// build time
 	system_clock::duration dur = t.time_since_epoch();
@@ -254,29 +255,48 @@ size_t blockWhenAdd(char *pBuf, char *pBufEnd)
 					int(durSecs.count()), int(durMillis.count()),
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
-}
+		return 0;
 #endif
+	if (pFctCntTimeCreate)
+	{
+		uint32_t cntTime = pFctCntTimeCreate();
 
-size_t blockWhereAdd(const void *pProc, char *pBuf, char *pBufEnd)
+		lenDone = snprintf(pBuf, pBufEnd - pBuf,
+						"%*" PRIu32 "  ",
+						widthCntTime, cntTime);
+
+		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+			return 0;
+	}
+
+	return lenDone;
+}
+
+static int blockWhereAdd(
+			char *pBuf, char *pBufEnd,
+			const void *pProc,
+			const char *filename,
+			const char *function,
+			const int line)
 {
+	int lenPrefix2 = 73;
+	int lenDone;
+
 	if (pProc)
 	{
 		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%s  %-20s  %p %s:%-4d  ",
-						severityToStr(severity),
+						"%-20s  %p %s:%-4d  ",
 						function, pProc, filename, line);
 	}
 	else
 	{
 		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%s  %-20s  %s:%-4d  ",
-						severityToStr(severity),
+						"%-20s  %s:%-4d  ",
 						function, filename, line);
 	}
 
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
+		return 0;
 
 	// prefix padding
 	while (lenDone < lenPrefix2 && pBuf < pBufEnd)
@@ -285,10 +305,89 @@ size_t blockWhereAdd(const void *pProc, char *pBuf, char *pBufEnd)
 		++lenDone;
 	}
 
+	return lenDone;
 }
 
-size_t blockWhatAdd(char *pBuf, size_t szBuf)
+static int blockWhatAdd(
+			char *pBuf, char *pBufEnd,
+			const int severity,
+			const char *msg, va_list args)
 {
+	int lenDone;
+
+	snprintf(pBuf, pBufEnd - pBuf, "%s  ", severityToStr(severity));
+
+	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
+	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+		return -1;
+
+	return lenDone;
+}
+
+static int toConsoleWrite(char *pBufStart,
+			const int severity)
+{
+#if CONFIG_PROC_LOG_HAVE_STDOUT
+	// create log entry
+	if (severity > levelLog)
+		return 0;
+#if 0
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	tOld = t;
+#endif
+#endif
+#ifdef _WIN32
+	HANDLE hConsole = GetStdHandle(severity < 3 ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO infoConsole;
+
+	GetConsoleScreenBufferInfo(hConsole, &infoConsole);
+
+	WORD colorBkup = infoConsole.wAttributes;
+
+	if (severity == 1)
+	{
+		SetConsoleTextAttribute(hConsole, red);
+		fprintf(stderr, "%s\r\n", pBufStart);
+		fflush(stderr);
+		SetConsoleTextAttribute(hConsole, colorBkup);
+	}
+	else
+	if (severity == 2)
+	{
+		SetConsoleTextAttribute(hConsole, yellow);
+		fprintf(stderr, "%s\r\n", pBufStart);
+		fflush(stderr);
+		SetConsoleTextAttribute(hConsole, colorBkup);
+	}
+	else
+	if (severity >= 4)
+	{
+		SetConsoleTextAttribute(hConsole, cyan);
+		fprintf(stdout, "%s\r\n", pBufStart);
+		fflush(stdout);
+		SetConsoleTextAttribute(hConsole, colorBkup);
+	}
+	else
+	{
+		SetConsoleTextAttribute(hConsole, dColorInfo);
+		fprintf(stdout, "%s\r\n", pBufStart);
+		fflush(stdout);
+		SetConsoleTextAttribute(hConsole, colorBkup);
+	}
+#else
+	if (severity == 1)
+		fprintf(stderr, "%s%s%s\r\n", red, pBufStart, dColorDefault);
+	else
+	if (severity == 2)
+		fprintf(stderr, "%s%s%s\r\n", yellow, pBufStart, dColorDefault);
+	else
+	if (severity >= 4)
+		fprintf(stdout, "%s%s%s\r\n", cyan, pBufStart, dColorDefault);
+	else
+		fprintf(stdout, "%s%s%s\r\n", dColorInfo, pBufStart, dColorDefault);
+#endif
+#endif
+	return 0;
 }
 
 int16_t entryLogCreate(
@@ -307,107 +406,34 @@ int16_t entryLogCreate(
 	if (!pBufStart)
 		return code;
 
-	size_t lenDone = 0;
-	size_t lenPrefix2 = 73;
 	char *pBuf = pBufStart;
-	char *pBufPrefix = lenPrefix2
 	char *pBufEnd = pBuf + cLogEntryBufferSize - 1;
+	int lenDone;
 
 	*pBuf = 0;
 	*pBufEnd = 0;
 
-#if CONFIG_PROC_LOG_HAVE_CHRONO
+	// WHEN
 	lenDone = blockWhenAdd(pBuf, pBufEnd);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
 		goto exitLogEntryCreate;
-#endif
-	if (pFctCntTimeCreate)
-	{
-		uint32_t cntTime = pFctCntTimeCreate();
 
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%*" PRIu32 "  ",
-						widthCntTime, cntTime);
-
-		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-			goto exitLogEntryCreate;
-	}
-
-	lenDone = blockWhereAdd(pProc, pBuf, pBufEnd);
+	// WHERE
+	lenDone = blockWhereAdd(pBuf, pBufEnd, pProc, filename, function, line);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
 		goto exitLogEntryCreate;
 
-	// user msg
+	// WHAT
 	va_list args;
-
 	va_start(args, msg);
-	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-	{
-		va_end(args);
-		goto exitLogEntryCreate;
-	}
+	lenDone = blockWhatAdd(pBuf, pBufEnd, severity, msg, args);
 	va_end(args);
+	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+		goto exitLogEntryCreate;
 
-#if CONFIG_PROC_LOG_HAVE_STDOUT
-	// create log entry
-	if (severity <= levelLog)
-	{
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-		tOld = t;
-#endif
-#ifdef _WIN32
-		HANDLE hConsole = GetStdHandle(severity < 3 ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
-		CONSOLE_SCREEN_BUFFER_INFO infoConsole;
+	// Out
+	toConsoleWrite(pBufStart, severity);
 
-		GetConsoleScreenBufferInfo(hConsole, &infoConsole);
-
-		WORD colorBkup = infoConsole.wAttributes;
-
-		if (severity == 1)
-		{
-			SetConsoleTextAttribute(hConsole, red);
-			fprintf(stderr, "%s\r\n", pBufStart);
-			fflush(stderr);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		if (severity == 2)
-		{
-			SetConsoleTextAttribute(hConsole, yellow);
-			fprintf(stderr, "%s\r\n", pBufStart);
-			fflush(stderr);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		if (severity >= 4)
-		{
-			SetConsoleTextAttribute(hConsole, cyan);
-			fprintf(stdout, "%s\r\n", pBufStart);
-			fflush(stdout);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		{
-			SetConsoleTextAttribute(hConsole, dColorInfo);
-			fprintf(stdout, "%s\r\n", pBufStart);
-			fflush(stdout);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-#else
-		if (severity == 1)
-			fprintf(stderr, "%s%s%s\r\n", red, pBufStart, dColorDefault);
-		else
-		if (severity == 2)
-			fprintf(stderr, "%s%s%s\r\n", yellow, pBufStart, dColorDefault);
-		else
-		if (severity >= 4)
-			fprintf(stdout, "%s%s%s\r\n", cyan, pBufStart, dColorDefault);
-		else
-			fprintf(stdout, "%s%s%s\r\n", dColorInfo, pBufStart, dColorDefault);
-#endif
-	}
-#endif
 	if (pFctEntryLogCreate)
 		pFctEntryLogCreate(severity,
 			pProc, filename, function, line, code,
