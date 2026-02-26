@@ -30,8 +30,13 @@
 
 #include "Processing.h"
 
+#if CONFIG_PROC_HAVE_CORE_LOG
 #define coreLog(m, ...)					(genericLog(5, NULL, 0, m, ##__VA_ARGS__))
 #define procCoreLog(m, ...)				(genericLog(5, this, 0, m, ##__VA_ARGS__))
+#else
+inline void coreLog(const char *msg, ...) { (void)msg; }
+inline void procCoreLog(const char *msg, ...) { (void)msg; }
+#endif
 
 #if CONFIG_PROC_HAVE_DRIVERS
 #define CONFIG_PROC_TITLE_NEW_DRIVER

@@ -43,6 +43,10 @@
 #define CONFIG_PROC_HAVE_LOG					0
 #endif
 
+#ifndef CONFIG_PROC_HAVE_CORE_LOG
+#define CONFIG_PROC_HAVE_CORE_LOG				0
+#endif
+
 #ifndef CONFIG_PROC_HAVE_DRIVERS
 #if defined(__STDCPP_THREADS__)
 #define CONFIG_PROC_HAVE_DRIVERS				1
