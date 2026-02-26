@@ -194,7 +194,6 @@ int16_t entryLogSimpleCreate(
 
 static int blockWhenAdd(char *pBuf, char *pBufEnd)
 {
-	int szBuf = pBufEnd - pBuf;
 	int lenDone;
 	int res;
 #if CONFIG_PROC_LOG_HAVE_CHRONO
@@ -211,7 +210,7 @@ static int blockWhenAdd(char *pBuf, char *pBufEnd)
 #else
 	::localtime_r(&tTt, &tTm);
 #endif
-	res = strftime(pBuf, sizeof(szBuf), "%Y-%m-%d", &tTm);
+	res = strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d", &tTm);
 	if (!res)
 		return 0;
 
@@ -314,7 +313,7 @@ static int blockWhatAdd(
 {
 	int lenDone;
 
-	snprintf(pBuf, pBufEnd - pBuf, "%s  ", severityToStr(severity));
+	pBuf += snprintf(pBuf, pBufEnd - pBuf, "%s  ", severityToStr(severity));
 
 	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
