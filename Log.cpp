@@ -255,7 +255,7 @@ static int blockWhenAdd(char *pBuf, char *pBufEnd)
 					int(durSecs.count()), int(durMillis.count()),
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		return 0;
+		return -1;
 #endif
 	if (pFctCntTimeCreate)
 	{
@@ -266,7 +266,7 @@ static int blockWhenAdd(char *pBuf, char *pBufEnd)
 						widthCntTime, cntTime);
 
 		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-			return 0;
+			return -1;
 	}
 
 	return lenDone;
@@ -282,21 +282,20 @@ static int blockWhereAdd(
 	int lenPrefix2 = 73;
 	int lenDone;
 
+	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%-20s  ", function);
+	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+		return -1;
+
 	if (pProc)
 	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%-20s  %p %s:%-4d  ",
-						function, pProc, filename, line);
-	}
-	else
-	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%-20s  %s:%-4d  ",
-						function, filename, line);
+		lenDone = snprintf(pBuf, pBufEnd - pBuf, "%p ", pProc);
+		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+			return -1;
 	}
 
+	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%s:%-4d  ", filename, line);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		return 0;
+		return -1;
 
 	// prefix padding
 	while (lenDone < lenPrefix2 && pBuf < pBufEnd)
