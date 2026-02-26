@@ -192,27 +192,43 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-size_t blockWhenAdd(char *pBuf, char *pBufEnd)
+int16_t entryLogCreate(
+			const int severity,
+			const void *pProc,
+			const char *filename,
+			const char *function,
+			const int line,
+			const int16_t code,
+			const char *msg, ...)
 {
-	size_t szBuf = pBufEnd - pBuf;
-	size_t res;
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
+	char *pBufStart = (char *)malloc(cLogEntryBufferSize);
+	if (!pBufStart)
+		return code;
 
+	char *pBuf = pBufStart;
+	char *pBufEnd = pBuf + cLogEntryBufferSize - 1;
+
+	*pBuf = 0;
+	*pBufEnd = 0;
+
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 	// get time
 	system_clock::time_point t = system_clock::now();
 	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
 
 	// build day
 	time_t tTt = system_clock::to_time_t(t);
+	char timeBuf[32];
 	tm tTm {};
 #ifdef _WIN32
 	::localtime_s(&tTm, &tTt);
 #else
 	::localtime_r(&tTt, &tTm);
 #endif
-	res = strftime(pBuf, sizeof(szBuf), "%Y-%m-%d", &tTm);
-	if (!res)
-		return -1;
+	strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d", &tTm);
 
 	// build time
 	system_clock::duration dur = t.time_since_epoch();
@@ -245,7 +261,11 @@ size_t blockWhenAdd(char *pBuf, char *pBufEnd)
 
 		diffMaxed = true;
 	}
+#endif
+	// merge
+	int lenDone, lenPrefix2 = 73;
 
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 	lenDone = snprintf(pBuf, pBufEnd - pBuf,
 					"%s  %02d:%02d:%02d.%03d "
 					"%c%d.%03d  ",
@@ -255,11 +275,19 @@ size_t blockWhenAdd(char *pBuf, char *pBufEnd)
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
 	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
 		goto exitLogEntryCreate;
-}
 #endif
+	if (pFctCntTimeCreate)
+	{
+		uint32_t cntTime = pFctCntTimeCreate();
 
-size_t blockWhereAdd(const void *pProc, char *pBuf, char *pBufEnd)
-{
+		lenDone = snprintf(pBuf, pBufEnd - pBuf,
+						"%*" PRIu32 "  ",
+						widthCntTime, cntTime);
+
+		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
+			goto exitLogEntryCreate;
+	}
+
 	if (pProc)
 	{
 		lenDone = snprintf(pBuf, pBufEnd - pBuf,
@@ -284,58 +312,6 @@ size_t blockWhereAdd(const void *pProc, char *pBuf, char *pBufEnd)
 		*pBuf++ = ' ';
 		++lenDone;
 	}
-
-}
-
-size_t blockWhatAdd(char *pBuf, size_t szBuf)
-{
-}
-
-int16_t entryLogCreate(
-			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg, ...)
-{
-#if CONFIG_PROC_HAVE_DRIVERS
-	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
-#endif
-	char *pBufStart = (char *)malloc(cLogEntryBufferSize);
-	if (!pBufStart)
-		return code;
-
-	size_t lenDone = 0;
-	size_t lenPrefix2 = 73;
-	char *pBuf = pBufStart;
-	char *pBufPrefix = lenPrefix2
-	char *pBufEnd = pBuf + cLogEntryBufferSize - 1;
-
-	*pBuf = 0;
-	*pBufEnd = 0;
-
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-	lenDone = blockWhenAdd(pBuf, pBufEnd);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
-#endif
-	if (pFctCntTimeCreate)
-	{
-		uint32_t cntTime = pFctCntTimeCreate();
-
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%*" PRIu32 "  ",
-						widthCntTime, cntTime);
-
-		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-			goto exitLogEntryCreate;
-	}
-
-	lenDone = blockWhereAdd(pProc, pBuf, pBufEnd);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
 
 	// user msg
 	va_list args;
