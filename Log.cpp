@@ -152,22 +152,11 @@ void cntTimeCreateSet(FuncCntTimeCreate pFct, int width)
 {
 	if (width < -20 || width > 20)
 		return;
-
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
 	pFctCntTimeCreate = pFct;
 	widthCntTime = width;
-}
-
-static int pBufSaturate(int lenDone, char * &pBuf, const char *pBufEnd)
-{
-	if (lenDone <= 0)
-		return -1;
-
-	if (lenDone > pBufEnd - pBuf)
-		lenDone = pBufEnd - pBuf;
-
-	pBuf += lenDone;
-
-	return lenDone;
 }
 
 int16_t entryLogSimpleCreate(
@@ -195,6 +184,16 @@ int16_t entryLogSimpleCreate(
 	fflush(pStream);
 
 	return code;
+}
+
+static int pBufSaturate(int lenDone, char * &pBuf, const char *pBufEnd)
+{
+	if (lenDone <= 0 || lenDone > pBufEnd - pBuf)
+		return -1;
+
+	pBuf += lenDone;
+
+	return lenDone;
 }
 
 static void strErr(char *pBuf)
