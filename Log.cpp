@@ -28,7 +28,7 @@
   SOFTWARE.
 */
 
-#include <string.h>
+//#include <string.h>
 
 #ifndef CONFIG_PROC_HAVE_DRIVERS
 #if defined(__STDCPP_THREADS__)
@@ -120,7 +120,7 @@ const char *tabColors[] =
 #endif
 const size_t cLenWherePad = 68;
 //const size_t cLogEntryBufferSize = 230;
-const size_t cLogEntryBufferSize = 104;
+const size_t cLogEntryBufferSize = 230;
 
 // Example                                                  _ pBufEnd
 //                                                        _/
@@ -202,8 +202,6 @@ static char *strErr(char *pBufStart, char *pBufEnd)
 {
 	char *pBuf = pBufStart;
 
-	fprintf(stderr, "strErr()\n");
-
 	for (; pBuf < pBufEnd; ++pBuf)
 		*pBuf = pBuf == pBufStart ? '-' : ' ';
 
@@ -219,8 +217,6 @@ static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 	char *pBufStart = pBuf;
 	int len;
 	int res;
-
-	fprintf(stderr, "blockTimeAbsAdd()\n");
 
 	// build day
 	time_t tTt = system_clock::to_time_t(t);
@@ -279,8 +275,6 @@ static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 	bool diffMaxed = false;
 	int len;
 
-	fprintf(stderr, "blockTimeRelAdd()\n");
-
 	if (tDiffSec > cDiffSecMax)
 	{
 		tDiffSec = cDiffSecMax;
@@ -306,8 +300,6 @@ static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
 {
 	char *pBufStart = pBuf;
-
-	fprintf(stderr, "blockTimeCntAdd()\n");
 
 	if (!pFctCntTimeCreate)
 	{
@@ -344,8 +336,6 @@ static char *blockWhereAdd(
 {
 	char *pBufStart = pBuf;
 	int len;
-
-	fprintf(stderr, "blockWhereAdd()\n");
 
 	len = snprintf(pBuf, pBufEnd - pBuf,
 				"%-20s  ", function);
@@ -394,8 +384,6 @@ static char *blockSeverityAdd(
 	char *pBufStart = pBuf;
 	int len;
 
-	fprintf(stderr, "blockSeverityAdd()\n");
-
 	len = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -414,8 +402,6 @@ static char *blockWhatUserAdd(
 {
 	char *pBufStart = pBuf;
 	int len;
-
-	fprintf(stderr, "blockWhatUserAdd()\n");
 
 	len = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
 	if (len < 0)
@@ -536,19 +522,17 @@ int16_t entryLogCreate(
 		pFctEntryLogCreate(severity,
 			pProc, filename, function, line, code,
 			pBufStart, pBufEnd - pBufStart);
-#if 1
-	fprintf(stderr, "pBufStart  = %p,   0,  0,   0\n", pBufStart);
-	fprintf(stderr, "pTimeAbs   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
-	fprintf(stderr, "pTimeRel   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
-	fprintf(stderr, "pTimeCnt   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeCnt, pTimeCnt - pBufStart, pTimeCnt - pTimeRel, strlen(pTimeCnt), pTimeCnt);
-	fprintf(stderr, "pWhere     = %p, %3ld, %2ld, %3ld, '%s'\n", pWhere, pWhere - pBufStart, pWhere - pTimeCnt, strlen(pWhere), pWhere);
-	fprintf(stderr, "pSeverity  = %p, %3ld, %2ld, %3ld, '%s'\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
-	fprintf(stderr, "pWhatUser  = %p, %3ld, %2ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
-	fprintf(stderr, "pBufEnd    = %p, %3ld, %2ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
+#if 0
+	fprintf(stderr, "pBufStart  = %p,   0,   0,   0\n", pBufStart);
+	fprintf(stderr, "pTimeAbs   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
+	fprintf(stderr, "pTimeRel   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
+	fprintf(stderr, "pTimeCnt   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeCnt, pTimeCnt - pBufStart, pTimeCnt - pTimeRel, strlen(pTimeCnt), pTimeCnt);
+	fprintf(stderr, "pWhere     = %p, %3ld, %3ld, %3ld, '%s'\n", pWhere, pWhere - pBufStart, pWhere - pTimeCnt, strlen(pWhere), pWhere);
+	fprintf(stderr, "pSeverity  = %p, %3ld, %3ld, %3ld, '%s'\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
+	fprintf(stderr, "pWhatUser  = %p, %3ld, %3ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
+	fprintf(stderr, "pBufEnd    = %p, %3ld, %3ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
 #endif
 	free(pBufStart);
-
-	exit(1);
 
 	return code;
 }
