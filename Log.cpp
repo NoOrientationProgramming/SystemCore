@@ -127,6 +127,9 @@ void levelLogSet(int lvl)
 
 void entryLogCreateSet(FuncEntryLogCreate pFct)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
 	pFctEntryLogCreate = pFct;
 }
 
