@@ -119,6 +119,16 @@ const char *tabColors[] =
 const size_t cLenWherePad = 68;
 const size_t cLogEntryBufferSize = 230;
 
+// Example                                                  _ pBufEnd
+//                                                        _/
+// Allocated buffer     |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 1              |<b1>0xxxxxxxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 2              |<b1>0<b2>0xxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 3 error        |<b1>0<b2>0-                     00|
+// Block 4 saturated    |<b1>0<b2>0-                     00|
+// Block 5 saturated    |<b1>0<b2>0-                     00|
+// Block 4 and 5 have same ptr at the end => pBufEnd
+
 static int levelLog = 3;
 #if CONFIG_PROC_HAVE_DRIVERS
 static mutex mtxPrint;
