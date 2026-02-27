@@ -188,7 +188,7 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
+static int pBufSaturated(int len, char * &pBuf, char *pBufEnd)
 {
 	if (len > pBufEnd - pBuf)
 		len = pBufEnd - pBuf;
@@ -198,26 +198,25 @@ static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
 	return pBuf == pBufEnd;
 }
 
-static char *strErr(char *pBufStart, const char *pBufEnd)
+static char *strErr(char *pBufStart, char *pBufEnd)
 {
 	char *pBuf = pBufStart;
 
 	fprintf(stderr, "strErr()\n");
 
-	while (pBuf < pBufEnd)
-	{
+	for (; pBuf < pBufEnd; ++pBuf)
 		*pBuf = pBuf == pBufStart ? '-' : ' ';
-		++pBuf;
-	}
 
-	pBuf -= 1;
-	*pBuf++ = 0;
+	if (pBuf == pBufStart)
+		return pBuf;
 
-	return pBuf;
+	*--pBuf = 0;
+
+	return pBufEnd;
 }
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
 {
 	char *pBufStart = pBuf;
 	int len;
@@ -272,7 +271,7 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	return pBuf;
 }
 
-static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
 {
 	char *pBufStart = pBuf;
 	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
@@ -306,7 +305,7 @@ static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	return pBuf;
 }
 #endif
-static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
+static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
 {
 	char *pBufStart = pBuf;
 
@@ -338,7 +337,7 @@ static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 }
 
 static char *blockWhereAdd(
-			char *pBuf, const char *pBufEnd,
+			char *pBuf, char *pBufEnd,
 			char *pBufPad,
 			const void *pProc,
 			const char *filename,
@@ -378,6 +377,12 @@ static char *blockWhereAdd(
 	while (pBuf < pBufPad && pBuf < pBufEnd)
 		*pBuf++ = ' ';
 
+	if (pBuf != pBufStart)
+	{
+		pBuf -= 1;
+		*pBuf++ = 0;
+	}
+
 	pBuf -= 3;
 	*pBuf++ = ' ';
 	*pBuf++ = ' ';
@@ -387,7 +392,7 @@ static char *blockWhereAdd(
 }
 
 static char *blockSeverityAdd(
-			char *pBuf, const char *pBufEnd,
+			char *pBuf, char *pBufEnd,
 			const int severity)
 {
 	char *pBufStart = pBuf;
@@ -408,7 +413,7 @@ static char *blockSeverityAdd(
 }
 
 static char *blockWhatUserAdd(
-			char *pBuf, const char *pBufEnd,
+			char *pBuf, char *pBufEnd,
 			const char *msg, va_list args)
 {
 	char *pBufStart = pBuf;
