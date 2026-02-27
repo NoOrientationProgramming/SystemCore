@@ -106,9 +106,8 @@ const WORD tabColors[] =
 #else
 const char *tabColors[] =
 {
-	"\033[39m",   /* default */	"\033[0;31m", /* red */
-	"\033[0;33m", /* yellow */	"\033[39m",   /* default */
-	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
+	"\033[39m",   /* default */	"\033[0;31m", /* red */		"\033[0;33m", /* yellow */
+	"\033[39m",   /* default */	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
 };
 #endif
 
