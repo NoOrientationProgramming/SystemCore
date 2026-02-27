@@ -538,12 +538,12 @@ int16_t entryLogCreate(
 			pBufStart, pBufEnd - pBufStart);
 #if 1
 	fprintf(stderr, "pBufStart  = %p,   0,  0,   0\n", pBufStart);
-	fprintf(stderr, "pTimeAbs   = %p, %3ld, %2ld, %3ld, %s\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
-	fprintf(stderr, "pTimeRel   = %p, %3ld, %2ld, %3ld, %s\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
-	fprintf(stderr, "pTimeCnt   = %p, %3ld, %2ld, %3ld, %s\n", pTimeCnt, pTimeCnt - pBufStart, pTimeCnt - pTimeRel, strlen(pTimeCnt), pTimeCnt);
-	fprintf(stderr, "pWhere     = %p, %3ld, %2ld, %3ld, %s\n", pWhere, pWhere - pBufStart, pWhere - pTimeCnt, strlen(pWhere), pWhere);
-	fprintf(stderr, "pSeverity  = %p, %3ld, %2ld, %3ld, %s\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
-	fprintf(stderr, "pWhatUser  = %p, %3ld, %2ld, %3ld, %s\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
+	fprintf(stderr, "pTimeAbs   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
+	fprintf(stderr, "pTimeRel   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
+	fprintf(stderr, "pTimeCnt   = %p, %3ld, %2ld, %3ld, '%s'\n", pTimeCnt, pTimeCnt - pBufStart, pTimeCnt - pTimeRel, strlen(pTimeCnt), pTimeCnt);
+	fprintf(stderr, "pWhere     = %p, %3ld, %2ld, %3ld, '%s'\n", pWhere, pWhere - pBufStart, pWhere - pTimeCnt, strlen(pWhere), pWhere);
+	fprintf(stderr, "pSeverity  = %p, %3ld, %2ld, %3ld, '%s'\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
+	fprintf(stderr, "pWhatUser  = %p, %3ld, %2ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
 	fprintf(stderr, "pBufEnd    = %p, %3ld, %2ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
 #endif
 	free(pBufStart);
