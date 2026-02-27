@@ -117,18 +117,8 @@ const char *tabColors[] =
 #else
 #define dColorInfo dColorDefault
 #endif
-
-const size_t cLenTimeAbs = 25;
-const size_t cLenTimeRel = 8;
-const size_t cLenWhere = 68;
-const size_t cLenStrSeverity = 5;
-const size_t cLenWhatUser = 46;
-const size_t cLogEntryBufferSize =
-		cLenTimeAbs + 1 +
-		cLenTimeRel + 1 +
-		cLenWhere + 1 +
-		cLenStrSeverity + 1 +
-		cLenWhatUser + 1;
+const size_t cLenWherePad = 68;
+const size_t cLogEntryBufferSize = 230;
 
 static int levelLog = 3;
 #if CONFIG_PROC_HAVE_DRIVERS
@@ -186,26 +176,36 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-static int pBufSaturate(int lenDone, char * &pBuf, const char *pBufEnd)
+static int pBufSaturated(int lenDone, char * &pBuf, const char *pBufEnd)
 {
-	if (lenDone <= 0 || lenDone > pBufEnd - pBuf)
-		return -1;
+	if (lenDone > pBufEnd - pBuf)
+		lenDone = pBufEnd - pBuf;
 
 	pBuf += lenDone;
 
-	return lenDone;
+	return lenDone == pBufEnd - pBuf;
 }
 
-static void strErr(char *pBuf)
+static char *strErr(char *pBufStart, const char *pBufEnd)
 {
-	if (!pBuf) return;
-	*pBuf++ = '-';
+	char *pBuf = pBufStart;
+
+	while (pBuf < pBufEnd)
+	{
+		*pBuf = pBuf == pBufStart ? '-' : ' ';
+		++pBuf;
+	}
+
+	pBuf -= 1;
 	*pBuf++ = 0;
+
+	return pBuf;
 }
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static void blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &t)
 {
+	char *pBufStart = pBuf;
 	int lenDone;
 	int res;
 
@@ -220,10 +220,7 @@ static void blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point 
 #endif
 	res = strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d", &tTm);
 	if (!res)
-	{
-		strErr(pBuf);
-		return;
-	}
+		return strErr(pBufStart, pBufEnd);
 
 	// build time
 	system_clock::duration dur = t.time_since_epoch();
@@ -248,12 +245,20 @@ static void blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point 
 					timeBuf,
 					int(durHours.count()), int(durMinutes.count()),
 					int(durSecs.count()), int(durMillis.count()));
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		strErr(pBuf);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
 }
 
-static void blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &t)
 {
+	char *pBufStart = pBuf;
 	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
 	long long tDiff = durDiffMs.count();
 	int tDiffSec = int(tDiff / 1000);
@@ -272,17 +277,29 @@ static void blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point 
 	lenDone = snprintf(pBuf, pBufEnd - pBuf,
 					"%c%d.%03d  ",
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		strErr(pBuf);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
 }
 #endif
-
-static void blockTimeCntAdd(char *pBuf, char *pBufEnd)
+static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 {
+	char *pBufStart = pBuf;
+
 	if (!pFctCntTimeCreate)
 	{
-		strErr(pBuf);
-		return;
+		if (pBuf < pBufEnd) *pBuf++ = 0;
+#if 0
+		return strErr(pBufStart, pBufEnd);
+#else
+		return pBuf;
+#endif
 	}
 
 	uint32_t cntTime = pFctCntTimeCreate();
@@ -291,80 +308,106 @@ static void blockTimeCntAdd(char *pBuf, char *pBufEnd)
 	lenDone = snprintf(pBuf, pBufEnd - pBuf,
 					"%*" PRIu32 "  ",
 					widthCntTime, cntTime);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		strErr(pBuf);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	return pBuf;
 }
 
-static void blockWhereAdd(
-			char *pBuf, char *pBufEnd,
+static char *blockWhereAdd(
+			char *pBuf, const char *pBufEnd,
+			char *pBufPad,
 			const void *pProc,
 			const char *filename,
 			const char *function,
 			const int line)
 {
+	char *pBufStart = pBuf;
 	int lenDone;
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%-20s  ", function);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-	{
-		strErr(pBuf);
-		return;
-	}
+	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+				"%-20s  ", function);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
 
 	if (pProc)
 	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf, "%p ", pProc);
-		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		{
-			strErr(pBuf);
-			return;
-		}
+		lenDone = snprintf(pBuf, pBufEnd - pBuf,
+				"%p ", pProc);
+		if (lenDone < 0)
+			return strErr(pBufStart, pBufEnd);
+
+		(void)pBufSaturated(lenDone, pBuf, pBufEnd);
 	}
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%s:%-4d  ", filename, line);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-	{
-		strErr(pBuf);
-		return;
-	}
+	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+				"%s:%-4d  ", filename, line);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
 
-	// prefix padding
-	while (pBuf < pBufEnd)
+	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+
+	// padding
+	while (pBuf < pBufPad && pBuf < pBufEnd)
 		*pBuf++ = ' ';
 
-	*--pBuf = 0;
+	pBuf -= 3;
+	*pBuf++ = ' ';
+	*pBuf++ = ' ';
+	*pBuf++ = 0;
+
+	return pBuf;
 }
 
-static void blockSeverityAdd(
-			char *pBuf, char *pBufEnd,
+static char *blockSeverityAdd(
+			char *pBuf, const char *pBufEnd,
 			const int severity)
 {
-	int res;
+	char *pBufStart = pBuf;
+	int lenDone;
 
-	res = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
-	if (!res)
-		strErr(pBuf);
+	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
 }
 
-static void blockWhatUserAdd(
-			char *pBuf, char *pBufEnd,
+static char *blockWhatUserAdd(
+			char *pBuf, const char *pBufEnd,
 			const char *msg, va_list args)
 {
+	char *pBufStart = pBuf;
 	int lenDone;
 
 	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-	{
-		strErr(pBuf);
-		return;
-	}
-}
+	if (lenDone < 0)
+		return strErr(pBufStart, pBufEnd);
 
+	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
 #if CONFIG_PROC_LOG_HAVE_STDOUT
 static void toConsoleWrite(
 			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 			char *pTimeAbs,
 			char *pTimeRel,
+#endif
+			char *pTimeCnt,
 			char *pWhere,
 			char *pSeverity,
 			char *pWhatUser)
@@ -386,10 +429,17 @@ static void toConsoleWrite(
 	SetConsoleTextAttribute(hConsole, colorBkup);
 #else
 	fprintf(fOut,
-			"\033[38:5:245m%s%s%s\033[0m"
+			"\033[38:5:245m"
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			"%s%s"
+#endif
+			"%s%s%s"
 			"%s%s%s"
 			"%s\r\n",
-			pTimeAbs, pTimeRel, pWhere,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs, pTimeRel,
+#endif
+			pTimeCnt, pWhere, tabColors[0],
 			tabColors[severity], pSeverity, tabColors[0],
 			pWhatUser);
 #endif
@@ -415,37 +465,42 @@ int16_t entryLogCreate(
 	if (!pBufStart)
 		return code;
 
-	char *pTimeAbs = pBufStart;
-	char *pTimeRel = pTimeAbs + cLenTimeAbs + 1;
-	char *pWhere = pTimeRel + cLenTimeRel + 1;
-	char *pSeverity = pWhere + cLenWhere + 1;
-	char *pWhatUser = pSeverity + cLenStrSeverity + 1;
-	char *pBufEnd = pWhatUser + cLenWhatUser + 1;
+	char *pBufEnd = pBufStart + cLogEntryBufferSize - 1;
+	*pBufEnd = 0;
 
 	// WHEN
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 	system_clock::time_point t = system_clock::now();
-	blockTimeAbsAdd(pTimeAbs, pTimeRel, t);
-	blockTimeRelAdd(pTimeRel, pWhere, t);
+	char *pTimeAbs = pBufStart;
+	char *pTimeRel = blockTimeAbsAdd(pTimeAbs, pBufEnd, t);
+	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, t);
 	tOld = t;
+#else
+	char *pTimeCnt = pBufStart;
 #endif
-	blockTimeCntAdd(NULL, NULL);
+	char *pWhere = blockTimeCntAdd(pTimeCnt, pBufEnd);
 
 	// WHERE
-	blockWhereAdd(pWhere, pSeverity, pProc, filename, function, line);
+	char *pSeverity = blockWhereAdd(
+			pWhere, pBufEnd,
+			pWhere + cLenWherePad,
+			pProc, filename, function, line);
 
 	// WHAT
-	blockSeverityAdd(pSeverity, pWhatUser, severity);
+	char *pWhatUser = blockSeverityAdd(pSeverity, pBufEnd, severity);
 	va_list args;
 	va_start(args, msg);
-	blockWhatUserAdd(pWhatUser, pBufEnd, msg, args);
+	(void)blockWhatUserAdd(pWhatUser, pBufEnd, msg, args);
 	va_end(args);
 
 	// Out
 #if CONFIG_PROC_LOG_HAVE_STDOUT
 	toConsoleWrite(severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 			pTimeAbs,
 			pTimeRel,
+#endif
+			pTimeCnt,
 			pWhere,
 			pSeverity,
 			pWhatUser);
