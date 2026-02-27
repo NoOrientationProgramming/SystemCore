@@ -536,7 +536,7 @@ int16_t entryLogCreate(
 		pFctEntryLogCreate(severity,
 			pProc, filename, function, line, code,
 			pBufStart, pBufEnd - pBufStart);
-
+#if 1
 	fprintf(stderr, "pBufStart  = %p,   0,  0,   0\n", pBufStart);
 	fprintf(stderr, "pTimeAbs   = %p, %3ld, %2ld, %3ld, %s\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
 	fprintf(stderr, "pTimeRel   = %p, %3ld, %2ld, %3ld, %s\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
@@ -545,7 +545,7 @@ int16_t entryLogCreate(
 	fprintf(stderr, "pSeverity  = %p, %3ld, %2ld, %3ld, %s\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
 	fprintf(stderr, "pWhatUser  = %p, %3ld, %2ld, %3ld, %s\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
 	fprintf(stderr, "pBufEnd    = %p, %3ld, %2ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
-
+#endif
 	free(pBufStart);
 
 	exit(1);
