@@ -29,6 +29,9 @@
 */
 
 #include <string.h>
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#endif
 
 #include "SystemDebugging.h"
 
@@ -45,6 +48,9 @@ dProcessStateStr(ProcState);
 #endif
 
 using namespace std;
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+using namespace chrono;
+#endif
 
 typedef list<struct SystemDebuggingPeer>::iterator PeerIter;
 #if 0
@@ -54,6 +60,11 @@ bool SystemDebugging::procTreeColored = true;
 queue<string> SystemDebugging::qLogEntries;
 #if CONFIG_PROC_HAVE_DRIVERS
 static mutex mtxLogEntries;
+#endif
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+static system_clock::time_point tOld;
+const int cDiffSecMax = 9;
+const int cDiffMsMax = 999;
 #endif
 int SystemDebugging::levelLog = 3;
 

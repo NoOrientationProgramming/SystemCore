@@ -119,7 +119,8 @@ const char *tabColors[] =
 #define dColorInfo dColorDefault
 #endif
 const size_t cLenWherePad = 68;
-const size_t cLogEntryBufferSize = 230;
+//const size_t cLogEntryBufferSize = 230;
+const size_t cLogEntryBufferSize = 104;
 
 // Example                                                  _ pBufEnd
 //                                                        _/
@@ -169,12 +170,12 @@ int16_t entryLogSimpleCreate(
 	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
 #endif
 	FILE *pStream = isErr ? stderr : stdout;
-	int lenDone;
+	int len;
 	va_list args;
 
 	va_start(args, msg);
-	lenDone = vfprintf(pStream, msg, args);
-	if (lenDone < 0)
+	len = vfprintf(pStream, msg, args);
+	if (len < 0)
 	{
 		va_end(args);
 		return code;
@@ -187,19 +188,21 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-static int pBufSaturated(int lenDone, char * &pBuf, const char *pBufEnd)
+static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
 {
-	if (lenDone > pBufEnd - pBuf)
-		lenDone = pBufEnd - pBuf;
+	if (len > pBufEnd - pBuf)
+		len = pBufEnd - pBuf;
 
-	pBuf += lenDone;
+	pBuf += len;
 
-	return lenDone == pBufEnd - pBuf;
+	return pBuf == pBufEnd;
 }
 
 static char *strErr(char *pBufStart, const char *pBufEnd)
 {
 	char *pBuf = pBufStart;
+
+	fprintf(stderr, "strErr()\n");
 
 	while (pBuf < pBufEnd)
 	{
@@ -217,8 +220,10 @@ static char *strErr(char *pBufStart, const char *pBufEnd)
 static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &t)
 {
 	char *pBufStart = pBuf;
-	int lenDone;
+	int len;
 	int res;
+
+	fprintf(stderr, "blockTimeAbsAdd()\n");
 
 	// build day
 	time_t tTt = system_clock::to_time_t(t);
@@ -251,15 +256,15 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	milliseconds durMillis = duration_cast<milliseconds>(dur);
 	dur -= durMillis;
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, pBufEnd - pBuf,
 					"%s  %02d:%02d:%02d.%03d ",
 					timeBuf,
 					int(durHours.count()), int(durMinutes.count()),
 					int(durSecs.count()), int(durMillis.count()));
-	if (lenDone < 0)
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+	if (pBufSaturated(len, pBuf, pBufEnd))
 		return strErr(pBufStart, pBufEnd);
 
 	++pBuf;
@@ -275,7 +280,9 @@ static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	int tDiffSec = int(tDiff / 1000);
 	int tDiffMs = int(tDiff % 1000);
 	bool diffMaxed = false;
-	int lenDone;
+	int len;
+
+	fprintf(stderr, "blockTimeRelAdd()\n");
 
 	if (tDiffSec > cDiffSecMax)
 	{
@@ -285,13 +292,13 @@ static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time
 		diffMaxed = true;
 	}
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, pBufEnd - pBuf,
 					"%c%d.%03d  ",
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
-	if (lenDone < 0)
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+	if (pBufSaturated(len, pBuf, pBufEnd))
 		return strErr(pBufStart, pBufEnd);
 
 	++pBuf;
@@ -302,6 +309,8 @@ static char *blockTimeRelAdd(char *pBuf, const char *pBufEnd, system_clock::time
 static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 {
 	char *pBufStart = pBuf;
+
+	fprintf(stderr, "blockTimeCntAdd()\n");
 
 	if (!pFctCntTimeCreate)
 	{
@@ -314,15 +323,15 @@ static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 	}
 
 	uint32_t cntTime = pFctCntTimeCreate();
-	int lenDone;
+	int len;
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, pBufEnd - pBuf,
 					"%*" PRIu32 "  ",
 					widthCntTime, cntTime);
-	if (lenDone < 0)
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+	if (pBufSaturated(len, pBuf, pBufEnd))
 		return strErr(pBufStart, pBufEnd);
 
 	return pBuf;
@@ -337,31 +346,33 @@ static char *blockWhereAdd(
 			const int line)
 {
 	char *pBufStart = pBuf;
-	int lenDone;
+	int len;
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+	fprintf(stderr, "blockWhereAdd()\n");
+
+	len = snprintf(pBuf, pBufEnd - pBuf,
 				"%-20s  ", function);
-	if (lenDone < 0)
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	if (pProc)
 	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
+		len = snprintf(pBuf, pBufEnd - pBuf,
 				"%p ", pProc);
-		if (lenDone < 0)
+		if (len < 0)
 			return strErr(pBufStart, pBufEnd);
 
-		(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+		(void)pBufSaturated(len, pBuf, pBufEnd);
 	}
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, pBufEnd - pBuf,
 				"%s:%-4d  ", filename, line);
-	if (lenDone < 0)
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	// padding
 	while (pBuf < pBufPad && pBuf < pBufEnd)
@@ -380,13 +391,15 @@ static char *blockSeverityAdd(
 			const int severity)
 {
 	char *pBufStart = pBuf;
-	int lenDone;
+	int len;
 
-	lenDone = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
-	if (lenDone < 0)
+	fprintf(stderr, "blockSeverityAdd()\n");
+
+	len = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	if (pBufSaturated(lenDone, pBuf, pBufEnd))
+	if (pBufSaturated(len, pBuf, pBufEnd))
 		return strErr(pBufStart, pBufEnd);
 
 	++pBuf;
@@ -399,13 +412,15 @@ static char *blockWhatUserAdd(
 			const char *msg, va_list args)
 {
 	char *pBufStart = pBuf;
-	int lenDone;
+	int len;
 
-	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
-	if (lenDone < 0)
+	fprintf(stderr, "blockWhatUserAdd()\n");
+
+	len = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
+	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
-	(void)pBufSaturated(lenDone, pBuf, pBufEnd);
+	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	++pBuf;
 
@@ -531,6 +546,8 @@ int16_t entryLogCreate(
 	fprintf(stderr, "pBufEnd    = %p, %3ld, %2ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
 
 	free(pBufStart);
+
+	exit(1);
 
 	return code;
 }
