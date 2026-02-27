@@ -207,12 +207,10 @@ static char *strErr(char *pBufStart, char *pBufEnd)
 	for (; pBuf < pBufEnd; ++pBuf)
 		*pBuf = pBuf == pBufStart ? '-' : ' ';
 
-	if (pBuf == pBufStart)
-		return pBuf;
+	if (pBuf > pBufStart)
+		*--pBuf = 0;
 
-	*--pBuf = 0;
-
-	return pBufEnd;
+	return pBuf;
 }
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
@@ -374,21 +372,19 @@ static char *blockWhereAdd(
 	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	// padding
-	while (pBuf < pBufPad && pBuf < pBufEnd)
-		*pBuf++ = ' ';
+	for (; pBuf < pBufPad && pBuf < pBufEnd; ++pBuf)
+		*pBuf = ' ';
 
-	if (pBuf != pBufStart)
-	{
-		pBuf -= 1;
-		*pBuf++ = 0;
-	}
+	char *pBufPadded = pBuf;
 
-	pBuf -= 3;
-	*pBuf++ = ' ';
-	*pBuf++ = ' ';
-	*pBuf++ = 0;
+	if (pBuf > pBufStart)
+		*--pBuf = 0;
+	if (pBuf > pBufStart)
+		*--pBuf = ' ';
+	if (pBuf > pBufStart)
+		*--pBuf = ' ';
 
-	return pBuf;
+	return pBufPadded;
 }
 
 static char *blockSeverityAdd(
