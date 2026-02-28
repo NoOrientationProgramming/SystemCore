@@ -60,6 +60,11 @@
 typedef std::lock_guard<std::mutex> Guard;
 #endif
 
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#include <time.h>
+#endif
+
 #ifdef _MSC_VER
 #include <BaseTsd.h>
 #ifndef _SSIZE_T_DEFINED
