@@ -31,15 +31,11 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#ifndef CONFIG_PROC_HAVE_LIB_C_CUSTOM
-#define CONFIG_PROC_HAVE_LIB_C_CUSTOM			0
-#endif
+#include "ProcConf.h"
 
 #if CONFIG_PROC_HAVE_LIB_C_CUSTOM
 #include "LibcCustom.h"
 #endif
-
-#include "ProcConf.h"
 
 #if CONFIG_PROC_HAVE_LIB_STD_C
 #include <stdint.h>
