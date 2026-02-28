@@ -29,6 +29,9 @@
 */
 
 #include <string.h>
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#endif
 
 #include "SystemDebugging.h"
 
@@ -45,17 +48,19 @@ dProcessStateStr(ProcState);
 #endif
 
 using namespace std;
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+using namespace chrono;
+#endif
 
 typedef list<struct SystemDebuggingPeer>::iterator PeerIter;
-#if 0
-bool SystemDebugging::procTreeDetailed = true;
-bool SystemDebugging::procTreeColored = true;
-#endif
 queue<string> SystemDebugging::qLogEntries;
+int SystemDebugging::levelLog = 3;
 #if CONFIG_PROC_HAVE_DRIVERS
 static mutex mtxLogEntries;
 #endif
-int SystemDebugging::levelLog = 3;
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+static system_clock::time_point tLoggedInQueue;
+#endif
 
 const size_t SystemDebugging::maxPeers = 100;
 
@@ -488,28 +493,50 @@ void SystemDebugging::cmdLevelLogSysSet(char *pArgs, char *pBuf, char *pBufEnd)
 	dInfo("System log level set to %d", lvl);
 }
 
+static const char *tabColors[] =
+{
+	"\033[39m",   /* default */	"\033[0;31m", /* red */		"\033[0;33m", /* yellow */
+	"\033[39m",   /* default */	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
+};
+
 void SystemDebugging::entryLogEnqueue(
-		const int severity,
-		const void *pProc,
-		const char *filename,
-		const char *function,
-		const int line,
-		const int16_t code,
-		const char *msg,
-		const size_t len)
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser)
 {
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxLogEntries);
 #endif
-	(void)pProc;
-	(void)filename;
-	(void)function;
-	(void)line;
-	(void)code;
-
 	if (severity > levelLog)
 		return;
 
-	qLogEntries.emplace(msg, len);
+	string str;
+
+	str += "\033[38:5:245m";
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	str += pTimeAbs;
+	str += pTimeRel;
+#endif
+	str += pTimeCnt;
+	str += pWhere;
+	str += tabColors[0];
+
+	str += tabColors[severity];
+	str += pSeverity;
+	str += tabColors[0];
+
+	str += pWhatUser;
+
+	qLogEntries.emplace(str);
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	tLoggedInQueue = tLogged;
+#endif
 }
 

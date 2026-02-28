@@ -28,28 +28,12 @@
   SOFTWARE.
 */
 
-#ifndef CONFIG_PROC_HAVE_DRIVERS
-#if defined(__STDCPP_THREADS__)
-#define CONFIG_PROC_HAVE_DRIVERS				1
-#else
-#define CONFIG_PROC_HAVE_DRIVERS				0
-#endif
-#endif
+#include "ProcConf.h"
 
-#ifndef CONFIG_PROC_LOG_HAVE_CHRONO
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_CHRONO				1
-#else
-#define CONFIG_PROC_LOG_HAVE_CHRONO				0
-#endif
-#endif
+#define DBG_LOG	0
 
-#ifndef CONFIG_PROC_LOG_HAVE_STDOUT
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_STDOUT				1
-#else
-#define CONFIG_PROC_LOG_HAVE_STDOUT				0
-#endif
+#if DBG_LOG
+#include <string.h>
 #endif
 
 #include <inttypes.h>
@@ -58,7 +42,6 @@
 #include <stdio.h>
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 #include <chrono>
-#include <time.h>
 #endif
 #if CONFIG_PROC_HAVE_DRIVERS
 #include <thread>
@@ -75,13 +58,15 @@ using namespace chrono;
 
 typedef void (*FuncEntryLogCreate)(
 			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg,
-			const size_t len);
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
 
 typedef uint32_t (*FuncCntTimeCreate)();
 
@@ -90,21 +75,27 @@ static FuncCntTimeCreate pFctCntTimeCreate = NULL;
 static int widthCntTime = 0;
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static system_clock::time_point tOld;
-const int cDiffSecMax = 9;
-const int cDiffMsMax = 999;
+static system_clock::time_point tLoggedOnConsole;
+const int cLogDiffSecMax = 9;
+const int cLogDiffMsMax = 999;
 #endif
 
+static const char *tabStrSev[] = { "INV", "ERR", "WRN", "INF", "DBG", "COR" };
+
+#if CONFIG_PROC_LOG_HAVE_STDOUT
 #ifdef _WIN32
-const WORD red = 4;
-const WORD yellow = 6;
-const WORD cyan = 3;
-const WORD dColorDefault = 7;
+static const WORD tabColors[] =
+{
+	7, /* default */	4, /* red */		6, /* yellow */
+	7, /* default */	3, /* cyan */		6, /* purple */
+};
 #else
-const char *red = "\033[0;31m";
-const char *yellow = "\033[0;33m";
-const char *cyan = "\033[0;36m";
-const char *dColorDefault = "\033[39m";
+static const char *tabColors[] =
+{
+	"\033[39m",   /* default */	"\033[0;31m", /* red */		"\033[0;33m", /* yellow */
+	"\033[39m",   /* default */	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
+};
+#endif
 #endif
 
 #ifdef CONFIG_PROC_LOG_COLOR_INF
@@ -112,8 +103,20 @@ const char *dColorDefault = "\033[39m";
 #else
 #define dColorInfo dColorDefault
 #endif
-
+const size_t cLenWherePad = 68;
+//const size_t cLogEntryBufferSize = 230;
 const size_t cLogEntryBufferSize = 230;
+
+// Example                                                  _ pBufEnd
+//                                                        _/
+// Allocated buffer     |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 1              |<b1>0xxxxxxxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 2              |<b1>0<b2>0xxxxxxxxxxxxxxxxxxxxxxx0|
+// Block 3 error        |<b1>0<b2>0-                     00|
+// Block 4 saturated    |<b1>0<b2>0-                     00|
+// Block 5 saturated    |<b1>0<b2>0-                     00|
+// Block 4 and 5 have same ptr at the end => pBufEnd
+
 static int levelLog = 3;
 #if CONFIG_PROC_HAVE_DRIVERS
 static mutex mtxPrint;
@@ -126,6 +129,9 @@ void levelLogSet(int lvl)
 
 void entryLogCreateSet(FuncEntryLogCreate pFct)
 {
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
 	pFctEntryLogCreate = pFct;
 }
 
@@ -133,36 +139,11 @@ void cntTimeCreateSet(FuncCntTimeCreate pFct, int width)
 {
 	if (width < -20 || width > 20)
 		return;
-
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
 	pFctCntTimeCreate = pFct;
 	widthCntTime = width;
-}
-
-static const char *severityToStr(const int severity)
-{
-	switch (severity)
-	{
-	case 1: return "ERR";
-	case 2: return "WRN";
-	case 3: return "INF";
-	case 4: return "DBG";
-	case 5: return "COR";
-	default: break;
-	}
-	return "INV";
-}
-
-static int pBufSaturate(int lenDone, char * &pBuf, const char *pBufEnd)
-{
-	if (lenDone < 0)
-		return lenDone;
-
-	if (lenDone > pBufEnd - pBuf)
-		lenDone = pBufEnd - pBuf;
-
-	pBuf += lenDone;
-
-	return lenDone;
 }
 
 int16_t entryLogSimpleCreate(
@@ -174,12 +155,12 @@ int16_t entryLogSimpleCreate(
 	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
 #endif
 	FILE *pStream = isErr ? stderr : stdout;
-	int lenDone;
+	int len;
 	va_list args;
 
 	va_start(args, msg);
-	lenDone = vfprintf(pStream, msg, args);
-	if (lenDone < 0)
+	len = vfprintf(pStream, msg, args);
+	if (len < 0)
 	{
 		va_end(args);
 		return code;
@@ -192,35 +173,53 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-int16_t entryLogCreate(
-			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg, ...)
+static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
 {
-#if CONFIG_PROC_HAVE_DRIVERS
-	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+	if (len > pBufEnd - pBuf)
+		len = pBufEnd - pBuf;
+
+	pBuf += len;
+
+	int saturated = pBuf == pBufEnd;
+
+#if DBG_LOG
+	if (saturated)
+		fprintf(stderr, "pBufSaturated()\n");
 #endif
-	char *pBufStart = (char *)malloc(cLogEntryBufferSize);
-	if (!pBufStart)
-		return code;
 
+	return saturated;
+}
+
+static char *strErr(char *pBufStart, const char *pBufEnd)
+{
 	char *pBuf = pBufStart;
-	char *pBufEnd = pBuf + cLogEntryBufferSize - 1;
 
-	*pBuf = 0;
-	*pBufEnd = 0;
+#if DBG_LOG
+	fprintf(stderr, "strErr()\n");
+#endif
+
+	for (; pBuf < pBufEnd; ++pBuf)
+		*pBuf = pBuf == pBufStart ? '-' : ' ';
+
+	if (pBuf > pBufStart)
+		*--pBuf = 0;
+
+	return pBuf;
+}
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-	// get time
-	system_clock::time_point t = system_clock::now();
-	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
+static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &tLogged)
+{
+	char *pBufStart = pBuf;
+	int len;
+	int res;
+
+#if DBG_LOG
+	fprintf(stderr, "# blockTimeAbsAdd()\n");
+#endif
 
 	// build day
-	time_t tTt = system_clock::to_time_t(t);
+	time_t tTt = system_clock::to_time_t(tLogged);
 	char timeBuf[32];
 	tm tTm {};
 #ifdef _WIN32
@@ -228,10 +227,12 @@ int16_t entryLogCreate(
 #else
 	::localtime_r(&tTt, &tTm);
 #endif
-	strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d", &tTm);
+	res = strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d", &tTm);
+	if (!res)
+		return strErr(pBufStart, pBufEnd);
 
 	// build time
-	system_clock::duration dur = t.time_since_epoch();
+	system_clock::duration dur = tLogged.time_since_epoch();
 
 	hours durDays = duration_cast<hours>(dur) / 24;
 	dur -= durDays * 24;
@@ -248,149 +249,365 @@ int16_t entryLogCreate(
 	milliseconds durMillis = duration_cast<milliseconds>(dur);
 	dur -= durMillis;
 
-	// build diff
+	len = snprintf(pBuf, pBufEnd - pBuf,
+					"%s  %02d:%02d:%02d.%03d ",
+					timeBuf,
+					int(durHours.count()), int(durMinutes.count()),
+					int(durSecs.count()), int(durMillis.count()));
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+#if DBG_LOG
+	fprintf(stderr, "len = %d\n", len);
+#endif
+	if (pBufSaturated(len, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
+
+static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &tLogged)
+{
+	char *pBufStart = pBuf;
+	milliseconds durDiffMs = duration_cast<milliseconds>(tLogged - tLoggedOnConsole);
 	long long tDiff = durDiffMs.count();
 	int tDiffSec = int(tDiff / 1000);
 	int tDiffMs = int(tDiff % 1000);
 	bool diffMaxed = false;
+	int len;
 
-	if (tDiffSec > cDiffSecMax)
+#if DBG_LOG
+	fprintf(stderr, "# blockTimeRelAdd()\n");
+#endif
+
+	if (tDiffSec > cLogDiffSecMax)
 	{
-		tDiffSec = cDiffSecMax;
-		tDiffMs = cDiffMsMax;
+		tDiffSec = cLogDiffSecMax;
+		tDiffMs = cLogDiffMsMax;
 
 		diffMaxed = true;
 	}
-#endif
-	// merge
-	int lenDone, lenPrefix2 = 73;
 
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-	lenDone = snprintf(pBuf, pBufEnd - pBuf,
-					"%s  %02d:%02d:%02d.%03d "
+	len = snprintf(pBuf, pBufEnd - pBuf,
 					"%c%d.%03d  ",
-					timeBuf,
-					int(durHours.count()), int(durMinutes.count()),
-					int(durSecs.count()), int(durMillis.count()),
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(len, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
 #endif
-	if (pFctCntTimeCreate)
+static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
+{
+	char *pBufStart = pBuf;
+
+#if DBG_LOG
+	fprintf(stderr, "# blockTimeCntAdd()\n");
+#endif
+
+	if (!pFctCntTimeCreate)
 	{
-		uint32_t cntTime = pFctCntTimeCreate();
-
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%*" PRIu32 "  ",
-						widthCntTime, cntTime);
-
-		if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-			goto exitLogEntryCreate;
+		if (pBuf < pBufEnd) *pBuf++ = 0;
+#if 0
+		return strErr(pBufStart, pBufEnd);
+#else
+		return pBuf;
+#endif
 	}
+
+	uint32_t cntTime = pFctCntTimeCreate();
+	int len;
+
+	len = snprintf(pBuf, pBufEnd - pBuf,
+					"%*" PRIu32 "  ",
+					widthCntTime, cntTime);
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(len, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
+
+static char *blockWhereAdd(
+			char *pBuf, const char *pBufEnd,
+			const char *pBufPad,
+			const void *pProc,
+			const char *filename,
+			const char *function,
+			const int line)
+{
+	char *pBufStart = pBuf;
+	int len;
+
+#if DBG_LOG
+	fprintf(stderr, "# blockWhereAdd() - a\n");
+#endif
+
+	len = snprintf(pBuf, pBufEnd - pBuf,
+				"%-20s  ", function);
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+#if DBG_LOG
+	fprintf(stderr, "# blockWhereAdd() - b\n");
+#endif
+
+	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	if (pProc)
 	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%s  %-20s  %p %s:%-4d  ",
-						severityToStr(severity),
-						function, pProc, filename, line);
-	}
-	else
-	{
-		lenDone = snprintf(pBuf, pBufEnd - pBuf,
-						"%s  %-20s  %s:%-4d  ",
-						severityToStr(severity),
-						function, filename, line);
-	}
+		len = snprintf(pBuf, pBufEnd - pBuf,
+				"%p ", pProc);
+		if (len < 0)
+			return strErr(pBufStart, pBufEnd);
 
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-		goto exitLogEntryCreate;
+#if DBG_LOG
+		fprintf(stderr, "# blockWhereAdd() - c\n");
+#endif
 
-	// prefix padding
-	while (lenDone < lenPrefix2 && pBuf < pBufEnd)
-	{
-		*pBuf++ = ' ';
-		++lenDone;
+		(void)pBufSaturated(len, pBuf, pBufEnd);
 	}
 
-	// user msg
+	len = snprintf(pBuf, pBufEnd - pBuf,
+				"%s:%-4d  ", filename, line);
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+#if DBG_LOG
+	fprintf(stderr, "# blockWhereAdd() - d\n");
+#endif
+
+	(void)pBufSaturated(len, pBuf, pBufEnd);
+
+	// padding
+	for (; pBuf < pBufPad && pBuf < pBufEnd; ++pBuf)
+		*pBuf = ' ';
+
+	char *pBufPadded = pBuf;
+
+	if (pBuf > pBufStart)
+		*--pBuf = 0;
+	if (pBuf > pBufStart)
+		*--pBuf = ' ';
+	if (pBuf > pBufStart)
+		*--pBuf = ' ';
+
+	return pBufPadded;
+}
+
+static char *blockSeverityAdd(
+			char *pBuf, const char *pBufEnd,
+			const int severity)
+{
+	char *pBufStart = pBuf;
+	int len;
+
+#if DBG_LOG
+	fprintf(stderr, "# blockSeverityAdd()\n");
+#endif
+
+	len = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	if (pBufSaturated(len, pBuf, pBufEnd))
+		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
+
+static char *blockWhatUserAdd(
+			char *pBuf, const char *pBufEnd,
+			const char *msg, va_list args)
+{
+	char *pBufStart = pBuf;
+	int len;
+
+#if DBG_LOG
+	fprintf(stderr, "# blockWhatUserAdd()\n");
+#endif
+
+	len = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
+	if (len < 0)
+		return strErr(pBufStart, pBufEnd);
+
+	(void)pBufSaturated(len, pBuf, pBufEnd);
+
+	++pBuf;
+
+	return pBuf;
+}
+#if CONFIG_PROC_LOG_HAVE_STDOUT
+static void toConsoleWrite(
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser)
+{
+	if (severity > levelLog)
+		return;
+
+	FILE *fOut = severity < 3 ? stderr : stdout;
+#ifdef _WIN32
+	HANDLE hConsole = GetStdHandle(severity < 3 ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO infoConsole;
+
+	GetConsoleScreenBufferInfo(hConsole, &infoConsole);
+	WORD colorBkup = infoConsole.wAttributes;
+
+	SetConsoleTextAttribute(hConsole, tabColors[0]);
+	fprintf(fOut,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			"%s%s"
+#endif
+			"%s%s",
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs, pTimeRel,
+#endif
+			pTimeCnt, pWhere);
+
+	SetConsoleTextAttribute(hConsole, tabColors[severity]);
+	fprintf(fOut, "%s", pSeverity);
+
+	SetConsoleTextAttribute(hConsole, colorBkup);
+	fprintf(fOut, "%s\r\n", pWhatUser);
+#else
+	fprintf(fOut,
+			"\033[38:5:245m"
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			"%s%s"
+#endif
+			"%s%s"
+			"%s%s"
+			"%s%s\r\n",
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs, pTimeRel,
+#endif
+			pTimeCnt, pWhere,
+			tabColors[severity], pSeverity,
+			tabColors[0], pWhatUser);
+#endif
+	fflush(fOut);
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	tLoggedOnConsole = tLogged;
+#endif
+}
+#endif
+
+int16_t entryLogCreate(
+			const int severity,
+			const void *pProc,
+			const char *filename,
+			const char *function,
+			const int line,
+			const int16_t code,
+			const char *msg, ...)
+{
+#if CONFIG_PROC_HAVE_DRIVERS
+	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
+#endif
+	if (severity < 1 || severity > 5)
+		return code;
+
+	// ## MALLOC
+	char *pBufStart = (char *)malloc(cLogEntryBufferSize);
+	if (!pBufStart)
+		return code;
+
+	char *pBufEnd = pBufStart + cLogEntryBufferSize - 1;
+	*pBufEnd = 0;
+
+	// WHEN
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	system_clock::time_point tLogged = system_clock::now();
+	char *pTimeAbs = pBufStart;
+	char *pTimeRel = blockTimeAbsAdd(pTimeAbs, pBufEnd, tLogged);
+	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, tLogged);
+#else
+	char *pTimeCnt = pBufStart;
+#endif
+	char *pWhere = blockTimeCntAdd(pTimeCnt, pBufEnd);
+
+	// WHERE
+	char *pSeverity = blockWhereAdd(
+			pWhere, pBufEnd,
+			pWhere + cLenWherePad,
+			pProc, filename, function, line);
+
+	// WHAT
+	char *pWhatUser = blockSeverityAdd(pSeverity, pBufEnd, severity);
 	va_list args;
-
 	va_start(args, msg);
-	lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
-	if (pBufSaturate(lenDone, pBuf, pBufEnd) < 0)
-	{
-		va_end(args);
-		goto exitLogEntryCreate;
-	}
+	(void)blockWhatUserAdd(pWhatUser, pBufEnd, msg, args);
 	va_end(args);
 
+	// +++ Console
 #if CONFIG_PROC_LOG_HAVE_STDOUT
-	// create log entry
-	if (severity <= levelLog)
-	{
+	toConsoleWrite(
+			severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-		tOld = t;
+			pTimeAbs,
+			pTimeRel,
+			tLogged,
 #endif
-#ifdef _WIN32
-		HANDLE hConsole = GetStdHandle(severity < 3 ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
-		CONSOLE_SCREEN_BUFFER_INFO infoConsole;
-
-		GetConsoleScreenBufferInfo(hConsole, &infoConsole);
-
-		WORD colorBkup = infoConsole.wAttributes;
-
-		if (severity == 1)
-		{
-			SetConsoleTextAttribute(hConsole, red);
-			fprintf(stderr, "%s\r\n", pBufStart);
-			fflush(stderr);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		if (severity == 2)
-		{
-			SetConsoleTextAttribute(hConsole, yellow);
-			fprintf(stderr, "%s\r\n", pBufStart);
-			fflush(stderr);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		if (severity >= 4)
-		{
-			SetConsoleTextAttribute(hConsole, cyan);
-			fprintf(stdout, "%s\r\n", pBufStart);
-			fflush(stdout);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-		else
-		{
-			SetConsoleTextAttribute(hConsole, dColorInfo);
-			fprintf(stdout, "%s\r\n", pBufStart);
-			fflush(stdout);
-			SetConsoleTextAttribute(hConsole, colorBkup);
-		}
-#else
-		if (severity == 1)
-			fprintf(stderr, "%s%s%s\r\n", red, pBufStart, dColorDefault);
-		else
-		if (severity == 2)
-			fprintf(stderr, "%s%s%s\r\n", yellow, pBufStart, dColorDefault);
-		else
-		if (severity >= 4)
-			fprintf(stdout, "%s%s%s\r\n", cyan, pBufStart, dColorDefault);
-		else
-			fprintf(stdout, "%s%s%s\r\n", dColorInfo, pBufStart, dColorDefault);
+			pTimeCnt,
+			pWhere,
+			pSeverity,
+			pWhatUser);
 #endif
-	}
-#endif
+
+	// +++ Listener
 	if (pFctEntryLogCreate)
-		pFctEntryLogCreate(severity,
-			pProc, filename, function, line, code,
-			pBufStart, pBuf - pBufStart);
+	{
+		pFctEntryLogCreate(
+			severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs,
+			pTimeRel,
+			tLogged,
+#endif
+			pTimeCnt,
+			pWhere,
+			pSeverity,
+			pWhatUser);
+	}
 
-exitLogEntryCreate:
+#if DBG_LOG
+	fprintf(stderr, "pBufStart  = %p,   0,   0,   0\n", pBufStart);
+	fprintf(stderr, "pTimeAbs   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
+	fprintf(stderr, "pTimeRel   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeRel, pTimeRel - pBufStart, pTimeRel - pTimeAbs, strlen(pTimeRel), pTimeRel);
+	fprintf(stderr, "pTimeCnt   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeCnt, pTimeCnt - pBufStart, pTimeCnt - pTimeRel, strlen(pTimeCnt), pTimeCnt);
+	fprintf(stderr, "pWhere     = %p, %3ld, %3ld, %3ld, '%s'\n", pWhere, pWhere - pBufStart, pWhere - pTimeCnt, strlen(pWhere), pWhere);
+	fprintf(stderr, "pSeverity  = %p, %3ld, %3ld, %3ld, '%s'\n", pSeverity, pSeverity - pBufStart, pSeverity - pWhere, strlen(pSeverity), pSeverity);
+	fprintf(stderr, "pWhatUser  = %p, %3ld, %3ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
+	fprintf(stderr, "pBufEnd    = %p, %3ld, %3ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
+#endif
+
+	// ## FREE
 	free(pBufStart);
+
+#if DBG_LOG
+	exit(1);
+#endif
 
 	return code;
 }

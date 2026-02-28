@@ -31,68 +31,10 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#ifndef CONFIG_PROC_HAVE_LIB_C_CUSTOM
-#define CONFIG_PROC_HAVE_LIB_C_CUSTOM			0
-#endif
+#include "ProcConf.h"
 
 #if CONFIG_PROC_HAVE_LIB_C_CUSTOM
 #include "LibcCustom.h"
-#endif
-
-#ifndef CONFIG_PROC_HAVE_LOG
-#define CONFIG_PROC_HAVE_LOG					0
-#endif
-
-#ifndef CONFIG_PROC_HAVE_DRIVERS
-#if defined(__STDCPP_THREADS__)
-#define CONFIG_PROC_HAVE_DRIVERS				1
-#else
-#define CONFIG_PROC_HAVE_DRIVERS				0
-#endif
-#endif
-
-#ifndef CONFIG_PROC_HAVE_GLOBAL_DESTRUCTORS
-#define CONFIG_PROC_HAVE_GLOBAL_DESTRUCTORS		1
-#endif
-
-#ifndef CONFIG_PROC_NUM_MAX_GLOBAL_DESTRUCTORS
-#define CONFIG_PROC_NUM_MAX_GLOBAL_DESTRUCTORS	20
-#endif
-
-#ifndef CONFIG_PROC_HAVE_LIB_STD_C
-#define CONFIG_PROC_HAVE_LIB_STD_C				1
-#endif
-
-#ifndef CONFIG_PROC_HAVE_LIB_STD_CPP
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_HAVE_LIB_STD_CPP			1
-#else
-#define CONFIG_PROC_HAVE_LIB_STD_CPP			0
-#endif
-#endif
-
-#ifndef CONFIG_PROC_USE_DRIVER_COLOR
-#define CONFIG_PROC_USE_DRIVER_COLOR			1
-#endif
-
-#ifndef CONFIG_PROC_NUM_MAX_CHILDREN_DEFAULT
-#define CONFIG_PROC_NUM_MAX_CHILDREN_DEFAULT		20
-#endif
-
-#ifndef CONFIG_PROC_SHOW_ADDRESS_IN_ID
-#define CONFIG_PROC_SHOW_ADDRESS_IN_ID			0
-#endif
-
-#ifndef CONFIG_PROC_ID_BUFFER_SIZE
-#define CONFIG_PROC_ID_BUFFER_SIZE				64
-#endif
-
-#ifndef CONFIG_PROC_INFO_BUFFER_SIZE
-#define CONFIG_PROC_INFO_BUFFER_SIZE			255
-#endif
-
-#ifndef CONFIG_PROC_DISABLE_TREE_DEFAULT
-#define CONFIG_PROC_DISABLE_TREE_DEFAULT		0
 #endif
 
 #if CONFIG_PROC_HAVE_LIB_STD_C
@@ -358,19 +300,21 @@ private:
 #endif
 #define __PROC_FILENAME__ (procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : __FILE__)
 
+typedef void (*FuncEntryLogCreate)(
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
+
 typedef uint32_t (*FuncCntTimeCreate)();
 
 #if CONFIG_PROC_HAVE_LOG
-typedef void (*FuncEntryLogCreate)(
-			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg,
-			const size_t len);
-
 void levelLogSet(int lvl);
 void entryLogCreateSet(FuncEntryLogCreate pFct);
 void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8);
@@ -379,7 +323,6 @@ int16_t entryLogSimpleCreate(
 				const int isErr,
 				const int16_t code,
 				const char *msg, ...);
-
 int16_t entryLogCreate(
 				const int severity,
 				const void *pProc,
@@ -388,24 +331,22 @@ int16_t entryLogCreate(
 				const int line,
 				const int16_t code,
 				const char *msg, ...);
-
-#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreate(e, c, m, ##__VA_ARGS__))
-#define genericLog(l, p, c, m, ...)         (entryLogCreate(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 #else
 inline void levelLogSet(int lvl)
 {
 	(void)lvl;
 }
-
-#define entryLogCreateSet(pFct)
-
+inline void entryLogCreateSet(FuncEntryLogCreate pFct)
+{
+	(void)pFct;
+}
 inline void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8)
 {
 	(void)pFct;
 	(void)width;
 }
 
-inline int16_t entryLogSimpleCreateDummy(
+inline int16_t entryLogSimpleCreate(
 				const int isErr,
 				const int16_t code,
 				const char *msg, ...)
@@ -415,8 +356,7 @@ inline int16_t entryLogSimpleCreateDummy(
 
 	return code;
 }
-
-inline int16_t entryLogCreateDummy(
+inline int16_t entryLogCreate(
 				const int severity,
 				const void *pProc,
 				const char *filename,
@@ -434,10 +374,10 @@ inline int16_t entryLogCreateDummy(
 
 	return code;
 }
-
-#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreateDummy(e, c, m, ##__VA_ARGS__))
-#define genericLog(l, p, c, m, ...)         (entryLogCreateDummy(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 #endif
+
+#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreate(e, c, m, ##__VA_ARGS__))
+#define genericLog(l, p, c, m, ...)         (entryLogCreate(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 
 #define userErrLog(c, m, ...)       (c < 0 ? genericSimpleLog(1, c, m, ##__VA_ARGS__) : c)
 #define userInfLog(m, ...)                  (genericSimpleLog(0, 0, m, ##__VA_ARGS__))

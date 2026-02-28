@@ -140,13 +140,15 @@ private:
 	static void cmdLevelLogSysSet(char *pArgs, char *pBuf, char *pBufEnd);
 	static void entryLogEnqueue(
 			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg,
-			const size_t len);
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
 
 	/* static variables */
 
