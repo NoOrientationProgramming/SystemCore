@@ -268,7 +268,7 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	return pBuf;
 }
 
-static char *blockTimeRelAdd(
+char *blockTimeRelAdd(
 		char *pBuf, char *pBufEnd,
 		system_clock::time_point &tNow, system_clock::time_point &tOld)
 {
