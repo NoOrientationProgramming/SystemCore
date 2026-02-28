@@ -173,7 +173,7 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-static int pBufSaturated(int len, char * &pBuf, char *pBufEnd)
+static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
 {
 	if (len > pBufEnd - pBuf)
 		len = pBufEnd - pBuf;
@@ -190,7 +190,7 @@ static int pBufSaturated(int len, char * &pBuf, char *pBufEnd)
 	return saturated;
 }
 
-static char *strErr(char *pBufStart, char *pBufEnd)
+static char *strErr(char *pBufStart, const char *pBufEnd)
 {
 	char *pBuf = pBufStart;
 
@@ -341,7 +341,7 @@ static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
 
 static char *blockWhereAdd(
 			char *pBuf, char *pBufEnd,
-			char *pBufPad,
+			const char *pBufPad,
 			const void *pProc,
 			const char *filename,
 			const char *function,
