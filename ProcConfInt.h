@@ -126,6 +126,5 @@ typedef void (*FuncEntryLogCreate)(
 #endif
 
 typedef uint32_t (*FuncCntTimeCreate)();
-
 #endif
 

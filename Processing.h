@@ -31,7 +31,7 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#include "ProcConf.h"
+#include "ProcConfInt.h"
 
 #if CONFIG_PROC_HAVE_LIB_C_CUSTOM
 #include "LibcCustom.h"

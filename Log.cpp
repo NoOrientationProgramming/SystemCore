@@ -28,7 +28,7 @@
   SOFTWARE.
 */
 
-#include "ProcConf.h"
+#include "ProcConfInt.h"
 
 #define DBG_LOG	0
 
