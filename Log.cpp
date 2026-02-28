@@ -449,14 +449,14 @@ static char *blockWhatUserAdd(
 static void toConsoleWrite(
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-			char *pTimeAbs,
-			char *pTimeRel,
-			system_clock::time_point &tLogged,
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const system_clock::time_point &tLogged,
 #endif
-			char *pTimeCnt,
-			char *pWhere,
-			char *pSeverity,
-			char *pWhatUser)
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser)
 {
 	if (severity > levelLog)
 		return;
