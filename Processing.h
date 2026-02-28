@@ -60,11 +60,6 @@
 typedef std::lock_guard<std::mutex> Guard;
 #endif
 
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-#include <chrono>
-#include <time.h>
-#endif
-
 #ifdef _MSC_VER
 #include <BaseTsd.h>
 #ifndef _SSIZE_T_DEFINED
@@ -305,19 +300,7 @@ private:
 #endif
 #define __PROC_FILENAME__ (procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : __FILE__)
 
-typedef uint32_t (*FuncCntTimeCreate)();
-
 #if CONFIG_PROC_HAVE_LOG
-typedef void (*FuncEntryLogCreate)(
-			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg,
-			const size_t len);
-
 void levelLogSet(int lvl);
 void entryLogCreateSet(FuncEntryLogCreate pFct);
 void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8);

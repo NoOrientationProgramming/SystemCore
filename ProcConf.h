@@ -107,5 +107,25 @@
 #endif
 #endif
 
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#endif
+
+#if CONFIG_PROC_HAVE_LOG
+typedef void (*FuncEntryLogCreate)(
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
+#endif
+
+typedef uint32_t (*FuncCntTimeCreate)();
+
 #endif
 

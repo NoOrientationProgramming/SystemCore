@@ -40,10 +40,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#if CONFIG_PROC_LOG_HAVE_CHRONO
-#include <chrono>
-#include <time.h>
-#endif
 #if CONFIG_PROC_HAVE_DRIVERS
 #include <thread>
 #include <mutex>
@@ -57,38 +53,26 @@ using namespace std;
 using namespace chrono;
 #endif
 
-typedef void (*FuncEntryLogCreate)(
-			const int severity,
-			const void *pProc,
-			const char *filename,
-			const char *function,
-			const int line,
-			const int16_t code,
-			const char *msg,
-			const size_t len);
-
-typedef uint32_t (*FuncCntTimeCreate)();
-
 static FuncEntryLogCreate pFctEntryLogCreate = NULL;
 static FuncCntTimeCreate pFctCntTimeCreate = NULL;
 static int widthCntTime = 0;
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 static system_clock::time_point tLoggedOnConsole;
-const int cDiffSecMax = 9;
-const int cDiffMsMax = 999;
+const int cLogDiffSecMax = 9;
+const int cLogDiffMsMax = 999;
 #endif
 
-const char *tabStrSev[] = { "INV", "ERR", "WRN", "INF", "DBG", "COR" };
+static const char *tabStrSev[] = { "INV", "ERR", "WRN", "INF", "DBG", "COR" };
 
 #ifdef _WIN32
-const WORD tabColors[] =
+static const WORD tabColors[] =
 {
 	7, /* default */	4, /* red */		6, /* yellow */
 	7, /* default */	3, /* cyan */		6, /* purple */
 };
 #else
-const char *tabColors[] =
+static const char *tabColors[] =
 {
 	"\033[39m",   /* default */	"\033[0;31m", /* red */		"\033[0;33m", /* yellow */
 	"\033[39m",   /* default */	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
@@ -279,10 +263,10 @@ static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 	fprintf(stderr, "# blockTimeRelAdd()\n");
 #endif
 
-	if (tDiffSec > cDiffSecMax)
+	if (tDiffSec > cLogDiffSecMax)
 	{
-		tDiffSec = cDiffSecMax;
-		tDiffMs = cDiffMsMax;
+		tDiffSec = cLogDiffSecMax;
+		tDiffMs = cLogDiffMsMax;
 
 		diffMaxed = true;
 	}
@@ -510,6 +494,7 @@ int16_t entryLogCreate(
 	if (severity < 1 || severity > 5)
 		return code;
 
+	// ## MALLOC
 	char *pBufStart = (char *)malloc(cLogEntryBufferSize);
 	if (!pBufStart)
 		return code;
@@ -541,7 +526,7 @@ int16_t entryLogCreate(
 	(void)blockWhatUserAdd(pWhatUser, pBufEnd, msg, args);
 	va_end(args);
 
-	// Out
+	// +++ Console
 #if CONFIG_PROC_LOG_HAVE_STDOUT
 	toConsoleWrite(
 			severity,
@@ -555,10 +540,23 @@ int16_t entryLogCreate(
 			pSeverity,
 			pWhatUser);
 #endif
+
+	// +++ Listener
 	if (pFctEntryLogCreate)
-		pFctEntryLogCreate(severity,
-			pProc, filename, function, line, code,
-			pBufStart, pBufEnd - pBufStart);
+	{
+		pFctEntryLogCreate(
+			severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs,
+			pTimeRel,
+			tLogged,
+#endif
+			pTimeCnt,
+			pWhere,
+			pSeverity,
+			pWhatUser);
+	}
+
 #if DBG_LOG
 	fprintf(stderr, "pBufStart  = %p,   0,   0,   0\n", pBufStart);
 	fprintf(stderr, "pTimeAbs   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
@@ -569,6 +567,8 @@ int16_t entryLogCreate(
 	fprintf(stderr, "pWhatUser  = %p, %3ld, %3ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
 	fprintf(stderr, "pBufEnd    = %p, %3ld, %3ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
 #endif
+
+	// ## FREE
 	free(pBufStart);
 
 #if DBG_LOG
