@@ -39,12 +39,32 @@
 #define CONFIG_PROC_HAVE_CORE_LOG				0
 #endif
 
+#ifndef CONFIG_PROC_HAVE_DRIVERS
+#if defined(__STDCPP_THREADS__)
+#define CONFIG_PROC_HAVE_DRIVERS				1
+#else
+#define CONFIG_PROC_HAVE_DRIVERS				0
+#endif
+#endif
+
 #ifndef CONFIG_PROC_HAVE_GLOBAL_DESTRUCTORS
 #define CONFIG_PROC_HAVE_GLOBAL_DESTRUCTORS		1
 #endif
 
 #ifndef CONFIG_PROC_NUM_MAX_GLOBAL_DESTRUCTORS
 #define CONFIG_PROC_NUM_MAX_GLOBAL_DESTRUCTORS	20
+#endif
+
+#ifndef CONFIG_PROC_HAVE_LIB_STD_C
+#define CONFIG_PROC_HAVE_LIB_STD_C				1
+#endif
+
+#ifndef CONFIG_PROC_HAVE_LIB_STD_CPP
+#if defined(__unix__) || defined(_WIN32)
+#define CONFIG_PROC_HAVE_LIB_STD_CPP			1
+#else
+#define CONFIG_PROC_HAVE_LIB_STD_CPP			0
+#endif
 #endif
 
 #ifndef CONFIG_PROC_USE_DRIVER_COLOR
@@ -65,26 +85,6 @@
 
 #ifndef CONFIG_PROC_DISABLE_TREE_DEFAULT
 #define CONFIG_PROC_DISABLE_TREE_DEFAULT		0
-#endif
-
-#ifndef CONFIG_PROC_HAVE_LIB_STD_C
-#define CONFIG_PROC_HAVE_LIB_STD_C				1
-#endif
-
-#ifndef CONFIG_PROC_HAVE_LIB_STD_CPP
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_HAVE_LIB_STD_CPP			1
-#else
-#define CONFIG_PROC_HAVE_LIB_STD_CPP			0
-#endif
-#endif
-
-#ifndef CONFIG_PROC_HAVE_DRIVERS
-#if defined(__STDCPP_THREADS__)
-#define CONFIG_PROC_HAVE_DRIVERS				1
-#else
-#define CONFIG_PROC_HAVE_DRIVERS				0
-#endif
 #endif
 
 #ifndef CONFIG_PROC_LOG_HAVE_CHRONO
