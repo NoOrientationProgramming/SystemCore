@@ -60,7 +60,7 @@
 #endif
 
 #ifndef CONFIG_PROC_HAVE_LIB_STD_CPP
-#if defined(__unix__) || defined(_WIN32)
+#if defined(__unix__) || defined(_WIN32) || defined(__APPLE__)
 #define CONFIG_PROC_HAVE_LIB_STD_CPP			1
 #else
 #define CONFIG_PROC_HAVE_LIB_STD_CPP			0
