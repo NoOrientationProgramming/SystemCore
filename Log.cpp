@@ -474,26 +474,39 @@ static void toConsoleWrite(
 	GetConsoleScreenBufferInfo(hConsole, &infoConsole);
 	WORD colorBkup = infoConsole.wAttributes;
 
+	SetConsoleTextAttribute(hConsole, tabColors[0]);
+	fprintf(fOut,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			"%s%s"
+#endif
+			"%s%s",
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			pTimeAbs, pTimeRel,
+#endif
+			pTimeCnt, pWhere);
+
 	SetConsoleTextAttribute(hConsole, tabColors[severity]);
-	fprintf(fOut, "%s\r\n", pBufStart);
-	fflush(fOut);
+	fprintf(fOut, "%s", pSeverity);
+
 	SetConsoleTextAttribute(hConsole, colorBkup);
+	fprintf(fOut, "%s\r\n", pWhatUser);
 #else
 	fprintf(fOut,
 			"\033[38:5:245m"
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			"%s%s"
 #endif
-			"%s%s%s"
-			"%s%s%s"
-			"%s\r\n",
+			"%s%s"
+			"%s%s"
+			"%s%s\r\n",
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			pTimeAbs, pTimeRel,
 #endif
-			pTimeCnt, pWhere, tabColors[0],
-			tabColors[severity], pSeverity, tabColors[0],
-			pWhatUser);
+			pTimeCnt, pWhere,
+			tabColors[severity], pSeverity,
+			tabColors[0], pWhatUser);
 #endif
+	fflush(fOut);
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 	tLoggedOnConsole = tLogged;
 #endif
