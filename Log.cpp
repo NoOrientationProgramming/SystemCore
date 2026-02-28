@@ -28,34 +28,12 @@
   SOFTWARE.
 */
 
+#include "ProcConf.h"
+
 #define DBG_LOG	0
 
 #if DBG_LOG
 #include <string.h>
-#endif
-
-#ifndef CONFIG_PROC_HAVE_DRIVERS
-#if defined(__STDCPP_THREADS__)
-#define CONFIG_PROC_HAVE_DRIVERS				1
-#else
-#define CONFIG_PROC_HAVE_DRIVERS				0
-#endif
-#endif
-
-#ifndef CONFIG_PROC_LOG_HAVE_CHRONO
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_CHRONO				1
-#else
-#define CONFIG_PROC_LOG_HAVE_CHRONO				0
-#endif
-#endif
-
-#ifndef CONFIG_PROC_LOG_HAVE_STDOUT
-#if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_STDOUT				1
-#else
-#define CONFIG_PROC_LOG_HAVE_STDOUT				0
-#endif
 #endif
 
 #include <inttypes.h>
