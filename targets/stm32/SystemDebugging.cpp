@@ -523,7 +523,7 @@ void SystemDebugging::entryLogEnqueue(
 	pBuf += 1; // make offset for content ID
 	pBufEnd -= 2; // point to second to last byte
 
-	*pBuf= 0;
+	*pBuf = 0;
 
 	dInfo("\033[38:5:245m");
 #if CONFIG_PROC_LOG_HAVE_CHRONO
