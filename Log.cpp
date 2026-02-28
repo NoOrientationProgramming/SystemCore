@@ -268,10 +268,12 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	return pBuf;
 }
 
-static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &tLogged)
+static char *blockTimeRelAdd(
+		char *pBuf, char *pBufEnd,
+		system_clock::time_point &tNow, system_clock::time_point &tOld)
 {
 	char *pBufStart = pBuf;
-	milliseconds durDiffMs = duration_cast<milliseconds>(tLogged - tLoggedOnConsole);
+	milliseconds durDiffMs = duration_cast<milliseconds>(tNow - tOld);
 	long long tDiff = durDiffMs.count();
 	int tDiffSec = int(tDiff / 1000);
 	int tDiffMs = int(tDiff % 1000);
@@ -541,7 +543,7 @@ int16_t entryLogCreate(
 	system_clock::time_point tLogged = system_clock::now();
 	char *pTimeAbs = pBufStart;
 	char *pTimeRel = blockTimeAbsAdd(pTimeAbs, pBufEnd, tLogged);
-	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, tLogged);
+	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, tLogged, tLoggedOnConsole);
 #else
 	char *pTimeCnt = pBufStart;
 #endif
