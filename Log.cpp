@@ -208,7 +208,7 @@ static char *strErr(char *pBufStart, const char *pBufEnd)
 }
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point &tLogged)
+static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &tLogged)
 {
 	char *pBufStart = pBuf;
 	int len;
@@ -304,7 +304,7 @@ static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 	return pBuf;
 }
 #endif
-static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
+static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 {
 	char *pBufStart = pBuf;
 
@@ -340,7 +340,7 @@ static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
 }
 
 static char *blockWhereAdd(
-			char *pBuf, char *pBufEnd,
+			char *pBuf, const char *pBufEnd,
 			const char *pBufPad,
 			const void *pProc,
 			const char *filename,
@@ -407,7 +407,7 @@ static char *blockWhereAdd(
 }
 
 static char *blockSeverityAdd(
-			char *pBuf, char *pBufEnd,
+			char *pBuf, const char *pBufEnd,
 			const int severity)
 {
 	char *pBufStart = pBuf;
@@ -430,7 +430,7 @@ static char *blockSeverityAdd(
 }
 
 static char *blockWhatUserAdd(
-			char *pBuf, char *pBufEnd,
+			char *pBuf, const char *pBufEnd,
 			const char *msg, va_list args)
 {
 	char *pBufStart = pBuf;
