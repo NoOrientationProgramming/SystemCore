@@ -58,6 +58,9 @@
 #define dNoThrow
 #endif
 
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#endif
 #if CONFIG_PROC_HAVE_DRIVERS
 #include <thread>
 #include <mutex>
