@@ -93,17 +93,17 @@
 
 #ifndef CONFIG_PROC_LOG_HAVE_CHRONO
 #if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_CHRONO				1
+#define CONFIG_PROC_LOG_HAVE_CHRONO			1
 #else
-#define CONFIG_PROC_LOG_HAVE_CHRONO				0
+#define CONFIG_PROC_LOG_HAVE_CHRONO			0
 #endif
 #endif
 
 #ifndef CONFIG_PROC_LOG_HAVE_STDOUT
 #if defined(__unix__) || defined(_WIN32)
-#define CONFIG_PROC_LOG_HAVE_STDOUT				1
+#define CONFIG_PROC_LOG_HAVE_STDOUT			1
 #else
-#define CONFIG_PROC_LOG_HAVE_STDOUT				0
+#define CONFIG_PROC_LOG_HAVE_STDOUT			0
 #endif
 #endif
 
