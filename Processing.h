@@ -300,7 +300,6 @@ private:
 #endif
 #define __PROC_FILENAME__ (procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : __FILE__)
 
-#if CONFIG_PROC_HAVE_LOG
 typedef void (*FuncEntryLogCreate)(
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
@@ -315,6 +314,7 @@ typedef void (*FuncEntryLogCreate)(
 
 typedef uint32_t (*FuncCntTimeCreate)();
 
+#if CONFIG_PROC_HAVE_LOG
 void levelLogSet(int lvl);
 void entryLogCreateSet(FuncEntryLogCreate pFct);
 void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8);
@@ -323,7 +323,6 @@ int16_t entryLogSimpleCreate(
 				const int isErr,
 				const int16_t code,
 				const char *msg, ...);
-
 int16_t entryLogCreate(
 				const int severity,
 				const void *pProc,
@@ -332,24 +331,22 @@ int16_t entryLogCreate(
 				const int line,
 				const int16_t code,
 				const char *msg, ...);
-
-#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreate(e, c, m, ##__VA_ARGS__))
-#define genericLog(l, p, c, m, ...)         (entryLogCreate(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 #else
 inline void levelLogSet(int lvl)
 {
 	(void)lvl;
 }
-
-#define entryLogCreateSet(pFct)
-
+inline void entryLogCreateSet(FuncEntryLogCreate pFct)
+{
+	(void)pFct;
+}
 inline void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8)
 {
 	(void)pFct;
 	(void)width;
 }
 
-inline int16_t entryLogSimpleCreateDummy(
+inline int16_t entryLogSimpleCreate(
 				const int isErr,
 				const int16_t code,
 				const char *msg, ...)
@@ -359,8 +356,7 @@ inline int16_t entryLogSimpleCreateDummy(
 
 	return code;
 }
-
-inline int16_t entryLogCreateDummy(
+inline int16_t entryLogCreate(
 				const int severity,
 				const void *pProc,
 				const char *filename,
@@ -378,10 +374,10 @@ inline int16_t entryLogCreateDummy(
 
 	return code;
 }
-
-#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreateDummy(e, c, m, ##__VA_ARGS__))
-#define genericLog(l, p, c, m, ...)         (entryLogCreateDummy(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 #endif
+
+#define genericSimpleLog(e, c, m, ...)      (entryLogSimpleCreate(e, c, m, ##__VA_ARGS__))
+#define genericLog(l, p, c, m, ...)         (entryLogCreate(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 
 #define userErrLog(c, m, ...)       (c < 0 ? genericSimpleLog(1, c, m, ##__VA_ARGS__) : c)
 #define userInfLog(m, ...)                  (genericSimpleLog(0, 0, m, ##__VA_ARGS__))

@@ -82,6 +82,7 @@ const int cLogDiffMsMax = 999;
 
 static const char *tabStrSev[] = { "INV", "ERR", "WRN", "INF", "DBG", "COR" };
 
+#if CONFIG_PROC_LOG_HAVE_STDOUT
 #ifdef _WIN32
 static const WORD tabColors[] =
 {
@@ -94,6 +95,7 @@ static const char *tabColors[] =
 	"\033[39m",   /* default */	"\033[0;31m", /* red */		"\033[0;33m", /* yellow */
 	"\033[39m",   /* default */	"\033[0;36m", /* cyan */		"\033[0;35m", /* purple */
 };
+#endif
 #endif
 
 #ifdef CONFIG_PROC_LOG_COLOR_INF
