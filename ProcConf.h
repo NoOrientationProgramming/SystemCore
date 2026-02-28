@@ -92,7 +92,7 @@
 #endif
 
 #ifndef CONFIG_PROC_LOG_HAVE_CHRONO
-#if defined(__unix__) || defined(_WIN32)
+#if defined(__unix__) || defined(_WIN32) || defined(__APPLE__)
 #define CONFIG_PROC_LOG_HAVE_CHRONO			1
 #else
 #define CONFIG_PROC_LOG_HAVE_CHRONO			0
@@ -100,7 +100,7 @@
 #endif
 
 #ifndef CONFIG_PROC_LOG_HAVE_STDOUT
-#if defined(__unix__) || defined(_WIN32)
+#if defined(__unix__) || defined(_WIN32) || defined(__APPLE__)
 #define CONFIG_PROC_LOG_HAVE_STDOUT			1
 #else
 #define CONFIG_PROC_LOG_HAVE_STDOUT			0
