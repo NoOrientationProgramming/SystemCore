@@ -539,6 +539,8 @@ void SystemDebugging::entryLogEnqueue(
 	dInfo("%s", tabColors[0]);
 	dInfo("%s", pWhatUser);
 
+	*pBufEnd = 0;
+
 	if (!pSwt->mSyncedTransfer)
 		return;
 
