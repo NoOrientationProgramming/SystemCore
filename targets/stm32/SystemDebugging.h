@@ -142,7 +142,6 @@ private:
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			const char *pTimeAbs,
-			const char *pTimeRel,
 			const std::chrono::system_clock::time_point &tLogged,
 #endif
 			const char *pTimeCnt,

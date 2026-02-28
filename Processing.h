@@ -311,7 +311,6 @@ typedef void (*FuncEntryLogCreate)(
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			const char *pTimeAbs,
-			const char *pTimeRel,
 			const std::chrono::system_clock::time_point &tLogged,
 #endif
 			const char *pTimeCnt,
@@ -338,6 +337,13 @@ int16_t entryLogCreate(
 				const int line,
 				const int16_t code,
 				const char *msg, ...);
+
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+char *blockTimeRelAdd(
+		char *pBuf, char *pBufEnd,
+		const std::chrono::system_clock::time_point &tNow,
+		const std::chrono::system_clock::time_point &tOld);
+#endif
 #else
 inline void levelLogSet(int lvl)
 {

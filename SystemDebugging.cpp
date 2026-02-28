@@ -503,7 +503,6 @@ void SystemDebugging::entryLogEnqueue(
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			const char *pTimeAbs,
-			const char *pTimeRel,
 			const system_clock::time_point &tLogged,
 #endif
 			const char *pTimeCnt,
@@ -522,7 +521,19 @@ void SystemDebugging::entryLogEnqueue(
 	str += "\033[38:5:245m";
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 	str += pTimeAbs;
-	str += pTimeRel;
+
+	char buf[11];
+	char *pBuf = buf;
+	char *pBufEnd = buf + sizeof(buf) - 1;
+
+	*pBuf = 0;
+	*pBufEnd = 0;
+
+	(void)blockTimeRelAdd(
+		pBuf, pBufEnd,
+		tLogged, tLoggedInQueue);
+
+	str += buf;
 #endif
 	str += pTimeCnt;
 	str += pWhere;

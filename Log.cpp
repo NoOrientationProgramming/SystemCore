@@ -60,7 +60,6 @@ typedef void (*FuncEntryLogCreate)(
 			const int severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			const char *pTimeAbs,
-			const char *pTimeRel,
 			const std::chrono::system_clock::time_point &tLogged,
 #endif
 			const char *pTimeCnt,
@@ -270,7 +269,8 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 
 char *blockTimeRelAdd(
 		char *pBuf, char *pBufEnd,
-		system_clock::time_point &tNow, system_clock::time_point &tOld)
+		const system_clock::time_point &tNow,
+		const system_clock::time_point &tOld)
 {
 	char *pBufStart = pBuf;
 	milliseconds durDiffMs = duration_cast<milliseconds>(tNow - tOld);
@@ -584,7 +584,6 @@ int16_t entryLogCreate(
 			severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			pTimeAbs,
-			pTimeRel,
 			tLogged,
 #endif
 			pTimeCnt,
