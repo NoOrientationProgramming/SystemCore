@@ -31,10 +31,6 @@
 #ifndef PROC_CONF_H
 #define PROC_CONF_H
 
-#ifndef CONFIG_PROC_HAVE_LIB_C_CUSTOM
-#define CONFIG_PROC_HAVE_LIB_C_CUSTOM			0
-#endif
-
 #ifndef CONFIG_PROC_HAVE_LOG
 #define CONFIG_PROC_HAVE_LOG					0
 #endif
