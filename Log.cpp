@@ -74,7 +74,7 @@ static FuncCntTimeCreate pFctCntTimeCreate = NULL;
 static int widthCntTime = 0;
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static system_clock::time_point tOld;
+static system_clock::time_point tLoggedOnConsole;
 const int cDiffSecMax = 9;
 const int cDiffMsMax = 999;
 #endif
@@ -205,7 +205,7 @@ static char *strErr(char *pBufStart, char *pBufEnd)
 }
 
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point &tLogged)
 {
 	char *pBufStart = pBuf;
 	int len;
@@ -216,7 +216,7 @@ static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 #endif
 
 	// build day
-	time_t tTt = system_clock::to_time_t(t);
+	time_t tTt = system_clock::to_time_t(tLogged);
 	char timeBuf[32];
 	tm tTm {};
 #ifdef _WIN32
@@ -229,7 +229,7 @@ static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 		return strErr(pBufStart, pBufEnd);
 
 	// build time
-	system_clock::duration dur = t.time_since_epoch();
+	system_clock::duration dur = tLogged.time_since_epoch();
 
 	hours durDays = duration_cast<hours>(dur) / 24;
 	dur -= durDays * 24;
@@ -265,10 +265,10 @@ static char *blockTimeAbsAdd(char *pBuf, char *pBufEnd, system_clock::time_point
 	return pBuf;
 }
 
-static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &t)
+static char *blockTimeRelAdd(char *pBuf, char *pBufEnd, system_clock::time_point &tLogged)
 {
 	char *pBufStart = pBuf;
-	milliseconds durDiffMs = duration_cast<milliseconds>(t - tOld);
+	milliseconds durDiffMs = duration_cast<milliseconds>(tLogged - tLoggedOnConsole);
 	long long tDiff = durDiffMs.count();
 	int tDiffSec = int(tDiff / 1000);
 	int tDiffMs = int(tDiff % 1000);
@@ -451,6 +451,7 @@ static void toConsoleWrite(
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			char *pTimeAbs,
 			char *pTimeRel,
+			system_clock::time_point &tLogged,
 #endif
 			char *pTimeCnt,
 			char *pWhere,
@@ -488,6 +489,9 @@ static void toConsoleWrite(
 			tabColors[severity], pSeverity, tabColors[0],
 			pWhatUser);
 #endif
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+	tLoggedOnConsole = tLogged;
+#endif
 }
 #endif
 
@@ -515,11 +519,10 @@ int16_t entryLogCreate(
 
 	// WHEN
 #if CONFIG_PROC_LOG_HAVE_CHRONO
-	system_clock::time_point t = system_clock::now();
+	system_clock::time_point tLogged = system_clock::now();
 	char *pTimeAbs = pBufStart;
-	char *pTimeRel = blockTimeAbsAdd(pTimeAbs, pBufEnd, t);
-	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, t);
-	tOld = t;
+	char *pTimeRel = blockTimeAbsAdd(pTimeAbs, pBufEnd, tLogged);
+	char *pTimeCnt = blockTimeRelAdd(pTimeRel, pBufEnd, tLogged);
 #else
 	char *pTimeCnt = pBufStart;
 #endif
@@ -540,10 +543,12 @@ int16_t entryLogCreate(
 
 	// Out
 #if CONFIG_PROC_LOG_HAVE_STDOUT
-	toConsoleWrite(severity,
+	toConsoleWrite(
+			severity,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			pTimeAbs,
 			pTimeRel,
+			tLogged,
 #endif
 			pTimeCnt,
 			pWhere,
