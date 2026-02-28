@@ -28,7 +28,7 @@
   SOFTWARE.
 */
 
-#include "ProcConfInt.h"
+#include "ProcConf.h"
 
 #define DBG_LOG	0
 
@@ -40,6 +40,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+#include <chrono>
+#endif
 #if CONFIG_PROC_HAVE_DRIVERS
 #include <thread>
 #include <mutex>
@@ -52,6 +55,20 @@ using namespace std;
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 using namespace chrono;
 #endif
+
+typedef void (*FuncEntryLogCreate)(
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
+
+typedef uint32_t (*FuncCntTimeCreate)();
 
 static FuncEntryLogCreate pFctEntryLogCreate = NULL;
 static FuncCntTimeCreate pFctCntTimeCreate = NULL;
@@ -314,6 +331,8 @@ static char *blockTimeCntAdd(char *pBuf, char *pBufEnd)
 
 	if (pBufSaturated(len, pBuf, pBufEnd))
 		return strErr(pBufStart, pBufEnd);
+
+	++pBuf;
 
 	return pBuf;
 }

@@ -520,8 +520,10 @@ void SystemDebugging::entryLogEnqueue(
 	string str;
 
 	str += "\033[38:5:245m";
+#if CONFIG_PROC_LOG_HAVE_CHRONO
 	str += pTimeAbs;
 	str += pTimeRel;
+#endif
 	str += pTimeCnt;
 	str += pWhere;
 	str += tabColors[0];

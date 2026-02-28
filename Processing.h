@@ -31,7 +31,7 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#include "ProcConfInt.h"
+#include "ProcConf.h"
 
 #if CONFIG_PROC_HAVE_LIB_C_CUSTOM
 #include "LibcCustom.h"
@@ -301,6 +301,20 @@ private:
 #define __PROC_FILENAME__ (procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : __FILE__)
 
 #if CONFIG_PROC_HAVE_LOG
+typedef void (*FuncEntryLogCreate)(
+			const int severity,
+#if CONFIG_PROC_LOG_HAVE_CHRONO
+			const char *pTimeAbs,
+			const char *pTimeRel,
+			const std::chrono::system_clock::time_point &tLogged,
+#endif
+			const char *pTimeCnt,
+			const char *pWhere,
+			const char *pSeverity,
+			const char *pWhatUser);
+
+typedef uint32_t (*FuncCntTimeCreate)();
+
 void levelLogSet(int lvl);
 void entryLogCreateSet(FuncEntryLogCreate pFct);
 void cntTimeCreateSet(FuncCntTimeCreate pFct, int width = 8);
