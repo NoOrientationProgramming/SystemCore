@@ -532,12 +532,11 @@ void SystemDebugging::entryLogEnqueue(
 #endif
 	dInfo("%s", pTimeCnt);
 	dInfo("%s", pWhere);
-	dInfo("%s", tabColors[0]);
 
 	dInfo("%s", tabColors[severity]);
 	dInfo("%s", pSeverity);
-	dInfo("%s", tabColors[0]);
 
+	dInfo("%s", tabColors[0]);
 	dInfo("%s", pWhatUser);
 
 	if (!pSwt->mSyncedTransfer)
