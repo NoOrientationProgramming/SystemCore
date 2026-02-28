@@ -687,10 +687,8 @@ void Processing::driverInternalCreateAndCleanUpSet(
 // This area is used by the concrete processes
 
 Processing::Processing(const char *name)
-	: mState(0)
-	, mStateOld(0)
-	, mLevelTree(0)
-	, mLevelDriver(0)
+	: mState(0), mStateOld(0)
+	, mLevelTree(0), mLevelDriver(0)
 	, mName(name)
 #if CONFIG_PROC_HAVE_LIB_STD_CPP
 	, mChildList()
@@ -698,14 +696,11 @@ Processing::Processing(const char *name)
 	, mpChildList(NULL)
 #endif
 #if CONFIG_PROC_HAVE_DRIVERS
-	, mChildListMtx()
-	, mpDriver(NULL)
+	, mChildListMtx(), mpDriver(NULL)
 	, mpConfigDriver(NULL)
 #endif
-	, mSuccess(Pending)
-	, mNumChildren(0)
-	, mStateAbstract(PsExistent)
-	, mStatParent(0)
+	, mSuccess(Pending), mNumChildren(0)
+	, mStateAbstract(PsExistent), mStatParent(0)
 	, mDriver(DrivenByExternalDriver)
 #if !CONFIG_PROC_HAVE_LIB_STD_CPP
 	, mNumChildrenMax(CONFIG_PROC_NUM_MAX_CHILDREN_DEFAULT)
