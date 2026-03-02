@@ -389,7 +389,7 @@ inline int16_t entryLogCreate(
 #define genericLog(l, p, c, m, ...)         (entryLogCreate(l, p, __PROC_FILENAME__, __func__, __LINE__, c, m, ##__VA_ARGS__))
 
 #define userErrLog(c, m, ...)       (c < 0 ? genericSimpleLog(1, c, m, ##__VA_ARGS__) : c)
-#define userInfLog(m, ...)                  (genericSimpleLog(0, 0, m, ##__VA_ARGS__))
+#define userInfLog(m, ...)                  (genericSimpleLog(3, 0, m, ##__VA_ARGS__))
 
 #define errLog(c, m, ...)           (c < 0 ? genericLog(1, NULL, c, m, ##__VA_ARGS__) : c)
 #define wrnLog(m, ...)                      (genericLog(2, NULL, 0, m, ##__VA_ARGS__))
