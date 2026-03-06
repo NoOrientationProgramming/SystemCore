@@ -981,6 +981,9 @@ bool SystemCommanding::keyIsInsert(uint16_t key)
 	if (key == ' ')
 		return true;
 
+	if (key == '=')
+		return true;
+
 	return false;
 }
 
