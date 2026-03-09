@@ -23,7 +23,7 @@ Each task can run in its own thread for parallel execution.
 ### Advantages
 - **Recursive structure** > Every system level uses the same building block
 - **Memory-safe design** > Process and data lifetimes are tied together, reducing leaks and other bugs
-- **Integrated debugging** > Process overview, logs, and remote command interface via TCP or UART
+- **Integrated debugging** > Process overview, logs, and a remote command interface via TCP (desktop) or UART (uC)
 - **Cross-platform** > Windows, Linux, macOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
 
 <p align="center">
