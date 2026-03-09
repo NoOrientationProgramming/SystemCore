@@ -16,7 +16,7 @@
 
 ## Nop/SystemCore
 
-A lightweight C++ framework for task scheduling and multitasking applications.
+A lightweight C++ framework for task scheduling and recursive multitasking across all system levels.
 
 ### Advantages
 - **Recursive structure** > Every system level uses the same building block
