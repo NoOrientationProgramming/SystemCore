@@ -18,6 +18,8 @@
 
 A lightweight C++ framework for task scheduling and recursive multitasking across all system levels.
 
+Each task can run in its own thread for parallel execution.
+
 ### Advantages
 - **Recursive structure** > Every system level uses the same building block
 - **Memory-safe design** > Process and data lifetimes are tied together, reducing leaks and other bugs
