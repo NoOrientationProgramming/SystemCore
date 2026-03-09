@@ -14,17 +14,20 @@
 [![Discord](https://img.shields.io/discord/960639692213190719?style=plastic&color=purple&logo=discord)](https://discord.gg/FBVKJTaY)
 [![Twitch Status](https://img.shields.io/twitch/status/Naegolus?label=twitch.tv%2FNaegolus&logo=Twitch&logoColor=%2300ff00&style=plastic&color=purple)](https://twitch.tv/Naegolus)
 
-This C++ framework provides a lightweight and highly structured foundation for C++ applications, combining a minimalistic design with a powerful debugging and monitoring system.
-
-It allows you to focus entirely on your application's logic without being restricted in your coding style. Similar to LaTeX, it separates structure from content - enabling faster, more reliable development, even for complex systems.
+This C++ framework provides a lightweight and highly structured foundation for efficient and robust C++ applications.
 
 ### Advantages
 
-- **Minimal boilerplate** > Focus purely on task-specific logic
 - **Recursive process structure** > Uniform system architecture from simple to complex
-- **Integrated debugging** > Visual process tree, logs and command interface over TCP
-- **Memory-safe design** > Aligned lifetimes of processes and data, reducing leaks
+- **Integrated debugging** > Process overview, logs and command interface via TCP
+- **Memory-safe design** > Aligned lifetimes of processes and data, reducing leaks and other bugs
 - **Cross-platform** > Windows, Linux, MacOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
+
+<p align="center">
+  <kbd>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/NopTutorials/main/doc/motivation-system-core.png" style="width: 800px; max-width:100%"/>
+  </kbd>
+</p>
 
 ### Add to your project
 
