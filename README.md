@@ -19,7 +19,7 @@
 A lightweight C++ framework for task scheduling and multitasking applications.
 
 ### Advantages
-- **Recursive structure** > Uniform system architecture from simple to large systems
+- **Recursive structure** > All system levels use the same building block
 - **Memory-safe design** > Process and data lifetimes are bound together, reducing leaks and other bugs
 - **Integrated debugging** > Process overview, logs and remote command interface via TCP
 - **Cross-platform** > Windows, Linux, MacOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
