@@ -7,7 +7,7 @@
 
 ![Windows](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/windows.yml?style=plastic&logo=github&label=Windows)
 ![Linux](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/linux.yml?style=plastic&logo=linux&logoColor=white&label=Linux)
-![MacOS](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/macos.yml?style=plastic&logo=apple&label=MacOS)
+![macOS](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/macos.yml?style=plastic&logo=apple&label=MacOS)
 ![FreeBSD](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/freebsd.yml?style=plastic&logo=freebsd&label=FreeBSD)
 ![ARM, RISC-V & MinGW](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/cross.yml?style=plastic&logo=gnu&label=ARM%2C%20RISC-V%20%26%20MinGW)
 
@@ -22,7 +22,7 @@ A lightweight C++ framework for task scheduling and multitasking applications.
 - **Recursive structure** > Every system level uses the same building block
 - **Memory-safe design** > Process and data lifetimes are tied together, reducing leaks and other bugs
 - **Integrated debugging** > Process overview, logs and remote command interface via TCP
-- **Cross-platform** > Windows, Linux, MacOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
+- **Cross-platform** > Windows, Linux, macOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
 
 <p align="center">
   <kbd>
