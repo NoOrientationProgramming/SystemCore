@@ -18,7 +18,7 @@ This C++ framework provides a lightweight foundation for efficient and robust C+
 
 ### Advantages
 
-- **Recursive process structure** > Uniform system architecture from simple to complex
+- **Recursive structure** > Uniform system architecture from simple to complex
 - **Integrated debugging** > Process overview, logs and command interface via TCP
 - **Memory-safe design** > Aligned lifetimes of processes and data, reducing leaks and other bugs
 - **Cross-platform** > Windows, Linux, MacOS, FreeBSD, uC (STM32, ESP32, ARM, RISC-V)
