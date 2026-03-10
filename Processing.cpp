@@ -344,6 +344,11 @@ void Processing::procTreeDisplaySet(bool display)
 		mStatDrv |= PsbDrvPrTreeDisable;
 }
 
+void Processing::argSet(void *pArg)
+{
+	mpArg = pArg;
+}
+
 bool Processing::initDone() const		{ return mStatDrv & PsbDrvInitDone;	}
 bool Processing::processDone() const	{ return mStatDrv & PsbDrvProcessDone;	}
 bool Processing::shutdownDone() const	{ return mStatDrv & PsbDrvShutdownDone;	}
@@ -699,7 +704,7 @@ Processing::Processing(const char *name)
 	, mChildListMtx(), mpDriver(NULL)
 	, mpConfigDriver(NULL)
 #endif
-	, mSuccess(Pending), mNumChildren(0)
+	, mpArg(NULL), mSuccess(Pending), mNumChildren(0)
 	, mStateAbstract(PsExistent), mStatParent(0)
 	, mDriver(DrivenByExternalDriver)
 #if !CONFIG_PROC_HAVE_LIB_STD_CPP

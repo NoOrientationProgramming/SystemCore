@@ -102,6 +102,7 @@ public:
 	Success success() const;
 	void unusedSet();
 	void procTreeDisplaySet(bool display);
+	void argSet(void *pArg);
 
 	bool initDone() const;
 	bool processDone() const;
@@ -182,7 +183,7 @@ private:
 		, mChildListMtx(), mpDriver(NULL)
 		, mpConfigDriver(NULL)
 #endif
-		, mSuccess(Pending), mNumChildren(0)
+		, mpArg(NULL), mSuccess(Pending), mNumChildren(0)
 		, mStateAbstract(0), mStatParent(0)
 		, mDriver(DrivenByExternalDriver)
 #if !CONFIG_PROC_HAVE_LIB_STD_CPP
@@ -203,7 +204,7 @@ private:
 		, mChildListMtx(), mpDriver(NULL)
 		, mpConfigDriver(NULL)
 #endif
-		, mSuccess(Pending), mNumChildren(0)
+		, mpArg(NULL), mSuccess(Pending), mNumChildren(0)
 		, mStateAbstract(0), mStatParent(0)
 		, mDriver(DrivenByExternalDriver)
 #if !CONFIG_PROC_HAVE_LIB_STD_CPP
@@ -227,6 +228,7 @@ private:
 		mpDriver = NULL;
 		mpConfigDriver = NULL;
 #endif
+		mpArg = NULL;
 		mSuccess = Pending;
 		mNumChildren = 0;
 		mStateAbstract = 0;
@@ -260,6 +262,7 @@ private:
 	void *mpDriver;
 	void *mpConfigDriver;
 #endif
+	void *mpArg;
 	Success mSuccess;
 	uint16_t mNumChildren;
 	uint8_t mStateAbstract;
