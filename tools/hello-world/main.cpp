@@ -77,10 +77,8 @@ int main(int argc, char *argv[])
 {
 	// Register OS signal handlers
 #if defined(_WIN32)
-	BOOL okWin;
-
 	// https://learn.microsoft.com/en-us/windows/console/setconsolectrlhandler
-	okWin = SetConsoleCtrlHandler(applicationCloseRequest, TRUE);
+	BOOL okWin = SetConsoleCtrlHandler(applicationCloseRequest, TRUE);
 	if (!okWin)
 	{
 		errLog(-1, "could not set ctrl handler");
