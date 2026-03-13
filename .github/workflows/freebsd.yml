@@ -22,4 +22,7 @@ jobs:
             meson setup build-meson-native
             ninja -C build-meson-native
             ./build-meson-native/introducing
+            cmake -S . -B build-cmake-native
+            cmake --build build-cmake/ -j
+            ./build-cmake-native/introducing
 
