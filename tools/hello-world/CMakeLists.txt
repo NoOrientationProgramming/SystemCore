@@ -77,6 +77,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wextra
         -Wpedantic
         -Werror
+        -Wno-gnu-zero-variadic-macro-arguments
     )
 
 endif()
