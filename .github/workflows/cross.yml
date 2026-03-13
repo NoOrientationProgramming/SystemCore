@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  linux-native-build-run:
+  cross-build-run:
     runs-on: ubuntu-latest
     steps:
 
