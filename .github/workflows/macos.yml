@@ -37,7 +37,7 @@ jobs:
       - name: Setup build directory cmake native
         run: cmake -S . -B build-cmake-native
       - name: Build application cmake native
-        run: cmake --build build-cmake/ -j
+        run: cmake --build build-cmake-native/ -j
       - name: Start application cmake
         run: ./build-cmake-native/introducing
 

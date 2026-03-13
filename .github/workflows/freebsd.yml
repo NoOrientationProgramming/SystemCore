@@ -23,6 +23,6 @@ jobs:
             ninja -C build-meson-native
             ./build-meson-native/introducing
             cmake -S . -B build-cmake-native
-            cmake --build build-cmake/ -j
+            cmake --build build-cmake-native/ -j
             ./build-cmake-native/introducing
 
