@@ -35,14 +35,14 @@ jobs:
       - name: Setup build directory meson
         run: meson setup build-meson-native
       - name: Build application meson
-        run: ninja -C build-meson-native
+        run: ninja -C build-meson-native -j$(nproc)
       - name: Start application meson
         run: ./build-meson-native/introducing
 
       - name: Setup build directory cmake native
         run: cmake -S . -B build-cmake-native
       - name: Build application cmake native
-        run: cmake --build build-cmake-native/ -j
+        run: cmake --build build-cmake-native/ -j$(nproc)
       - name: Start application cmake
         run: ./build-cmake-native/introducing
 

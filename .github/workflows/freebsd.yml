@@ -20,9 +20,9 @@ jobs:
             git clone https://github.com/NoOrientationProgramming/SystemCore.git --recursive
             cd SystemCore/tools/hello-world
             meson setup build-meson-native
-            ninja -C build-meson-native
+            ninja -C build-meson-native -j$(nproc)
             ./build-meson-native/introducing
             cmake -S . -B build-cmake-native
-            cmake --build build-cmake-native/ -j
+            cmake --build build-cmake-native/ -j$(nproc)
             ./build-cmake-native/introducing
 
