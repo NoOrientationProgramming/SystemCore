@@ -5,11 +5,11 @@
 [![GitHub Release](https://img.shields.io/github/v/release/NoOrientationProgramming/SystemCore?color=blue&style=plastic)](https://github.com/NoOrientationProgramming/SystemCore/releases)
 [![Standard](https://img.shields.io/badge/standard-C%2B%2B11-blue.svg?style=plastic&logo=c%2B%2B)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
 
-![Windows](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/windows.yml?style=plastic&logo=github&label=Windows)
-![Linux](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/linux.yml?style=plastic&logo=linux&logoColor=white&label=Linux)
-![macOS](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/macos.yml?style=plastic&logo=apple&label=macOS)
-![FreeBSD](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/freebsd.yml?style=plastic&logo=freebsd&label=FreeBSD)
-![ARM, RISC-V & MinGW](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/code-orb/cross.yml?style=plastic&logo=gnu&label=ARM%2C%20RISC-V%20%26%20MinGW)
+![Windows](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/SystemCore/windows.yml?style=plastic&logo=github&label=Windows)
+![Linux](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/SystemCore/linux.yml?style=plastic&logo=linux&logoColor=white&label=Linux)
+![macOS](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/SystemCore/macos.yml?style=plastic&logo=apple&label=macOS)
+![FreeBSD](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/SystemCore/freebsd.yml?style=plastic&logo=freebsd&label=FreeBSD)
+![ARM, RISC-V & MinGW](https://img.shields.io/github/actions/workflow/status/NoOrientationProgramming/SystemCore/cross.yml?style=plastic&logo=gnu&label=ARM%2C%20RISC-V%20%26%20MinGW)
 
 [![Discord](https://img.shields.io/discord/960639692213190719?style=plastic&color=purple&logo=discord)](https://discord.gg/FBVKJTaY)
 [![Twitch Status](https://img.shields.io/twitch/status/Naegolus?label=twitch.tv%2FNaegolus&logo=Twitch&logoColor=%2300ff00&style=plastic&color=purple)](https://twitch.tv/Naegolus)
