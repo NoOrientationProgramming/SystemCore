@@ -32,6 +32,7 @@
 #define INTRODUCING_H
 
 #include "Processing.h"
+#include "ChildExecuting.h"
 
 class Introducing : public Processing
 {
@@ -67,6 +68,7 @@ private:
 
 	/* member variables */
 	//uint32_t mStartMs;
+	ChildExecuting *mpThreadedChild;
 
 	/* static functions */
 

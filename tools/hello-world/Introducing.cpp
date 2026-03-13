@@ -30,7 +30,6 @@
 
 #include "Introducing.h"
 #include "SystemDebugging.h"
-#include "ChildExecuting.h"
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
@@ -50,6 +49,7 @@ using namespace std;
 Introducing::Introducing()
 	: Processing("Introducing")
 	//, mStartMs(0)
+	, mpThreadedChild(NULL)
 {
 	mState = StStart;
 }
@@ -75,7 +75,7 @@ Success Introducing::process()
 		if (!ok)
 			procWrnLog("could not start debugger");
 
-		for (size_t i = 0; i < 2; ++i)
+		for (size_t i = 0; i < 3; ++i)
 			childrenStart(i);
 
 		userInfLog("Hello!");
@@ -114,8 +114,7 @@ bool Introducing::debuggerStart()
 
 void Introducing::childrenStart(int idx)
 {
-	Processing *pChild;
-	DriverMode drv;
+	ChildExecuting *pChild;
 
 	procInfLog("starting child %d", idx);
 
@@ -126,9 +125,23 @@ void Introducing::childrenStart(int idx)
 		return;
 	}
 
-	drv = idx ? DrivenByParent : DrivenByNewInternalDriver;
+	if (!idx)
+	{
+		mpThreadedChild = pChild;
 
-	start(pChild, drv);
+		/*
+		 * Make this a multi-threaded application.
+		 * Why? Because it's fun and easy!
+		 * Just one flag is needed.
+		 * In production systems you should create a new threads only if:
+		 * - There are two or more CPU-bound processes AND
+		 * - the target system hat two or more CPUs!
+		 */
+		start(pChild, DrivenByNewInternalDriver);
+		return;
+	}
+
+	start(pChild); // DrivenByParent (no new thread) is the default.
 }
 
 void Introducing::processInfo(char *pBuf, char *pBufEnd)
