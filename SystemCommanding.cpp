@@ -758,7 +758,7 @@ bool SystemCommanding::historyNavigate(uint16_t key)
 
 	*pDst = 0;
 
-	mIdxColLineEnd = pDst - pDstBase;
+	mIdxColLineEnd = (uint16_t)(pDst - pDstBase);
 	mIdxColCursor = mIdxColLineEnd;
 
 	return true;
@@ -1531,9 +1531,8 @@ size_t SystemCommanding::hexDumpPrint(char *pBuf, char *pBufEnd,
 	const char *pByte = (const char *)pData;
 	uint32_t addressAbs = 0;
 	const char *pLine;
+	size_t i, numBytesPerLine = colWidth;
 	uint8_t lenPrinted;
-	uint8_t numBytesPerLine = colWidth;
-	size_t i;
 
 	dInfo("%p  %s\n", pData, pName ? pName : "Data");
 
