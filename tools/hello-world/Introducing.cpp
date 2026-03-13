@@ -125,23 +125,32 @@ void Introducing::childrenStart(int idx)
 		return;
 	}
 
-	if (!idx)
-	{
-		mpThreadedChild = pChild;
+	/*
+	 * Configuration area
+	 */
+	pChild->mSpecial = !idx;
 
-		/*
-		 * Make this a multi-threaded application.
-		 * Why? Because it's fun and easy!
-		 * Just one flag is needed.
-		 * In production systems you should create a new threads only if:
-		 * - There are two or more CPU-bound processes AND
-		 * - the target system hat two or more CPUs!
-		 */
-		start(pChild, DrivenByNewInternalDriver);
+	/*
+	 * Start the process
+	 */
+
+	if (idx)
+	{
+		start(pChild); // DrivenByParent (no new thread) is the default.
 		return;
 	}
 
-	start(pChild); // DrivenByParent (no new thread) is the default.
+	mpThreadedChild = pChild;
+
+	/*
+	 * Make this a multi-threaded application.
+	 * Why? Because it's fun and easy!
+	 * Just one flag is needed.
+	 * In production systems you should create a new threads only if:
+	 * - There are two or more CPU-bound processes AND
+	 * - the target system hat two or more CPUs!
+	 */
+	start(pChild, DrivenByNewInternalDriver);
 }
 
 void Introducing::processInfo(char *pBuf, char *pBufEnd)

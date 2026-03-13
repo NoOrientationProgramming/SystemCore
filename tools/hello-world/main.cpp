@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 		/*
 		 * Check if the application is still doing _something_!
 		 * This also includes shutting down the tree when
-		 * the app isn't used anymore or has finished it's work.
+		 * the app isn't used anymore or has finished its work.
 		 */
 		if (pApp->progress())
 			continue;
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
 	 * Check the success:
 	 *   Positive or some negative number
 	 * The success of a process tells you if the process
-	 * has created it's result successfully.
-	 * Every process has it's own result!
+	 * has created its result successfully.
+	 * Every process has its own result!
 	 * => You decide in the public area of every concrete process class
 	 *    what the result of the process is.
 	 */

@@ -43,7 +43,7 @@ public:
 		return new dNoThrow ChildExecuting;
 	}
 
-	int mIdx;
+	bool mSpecial;
 
 protected:
 
