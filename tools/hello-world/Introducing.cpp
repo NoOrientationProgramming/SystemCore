@@ -117,7 +117,7 @@ bool Introducing::debuggerStart()
 	return true;
 }
 
-void Introducing::childrenStart(int idx)
+void Introducing::childrenStart(size_t idx)
 {
 	ChildExecuting *pChild;
 

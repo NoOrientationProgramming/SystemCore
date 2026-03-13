@@ -97,7 +97,7 @@ private:
 	 * Internal functions for this 'Hello World' project.
 	 */
 	bool debuggerStart();
-	void childrenStart(int idx);
+	void childrenStart(size_t idx);
 
 	/* member variables */
 	/*
