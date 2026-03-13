@@ -35,7 +35,7 @@ jobs:
       - name: Setup build directory meson
         run: meson setup build-meson-native
       - name: Build application meson
-        run: ninja -C build-meson-native -j$(nproc)
+        run: ninja -C build-meson-native
       - name: Start application meson
         run: ./build-meson-native/introducing
 
