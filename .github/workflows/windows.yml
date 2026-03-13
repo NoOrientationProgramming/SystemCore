@@ -8,23 +8,27 @@ jobs:
 
   windows-native-build-run:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: tools/hello-world
     steps:
 
 # Toolchain + git
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up Visual Studio Environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: Install build tools
         run: python -m pip install meson ninja
-
-      - uses: actions/checkout@v4
-      - name: Initialize git submodules
-        run: git submodule update --init --recursive
 
 # Native meson
 
@@ -33,5 +37,5 @@ jobs:
       - name: Build application meson
         run: ninja -C build-meson-native
       - name: Start application meson
-        run: ./build-meson-native/codeorb --help
+        run: ./build-meson-native/introducing
 

@@ -29,6 +29,7 @@ jobs:
             gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
             gcc-riscv64-linux-gnu g++-riscv64-linux-gnu \
             mingw-w64
+
       - name: Setup mingw
         if: matrix.target == 'mingw'
         run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix

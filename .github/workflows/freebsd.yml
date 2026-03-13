@@ -17,9 +17,9 @@ jobs:
           prepare: |
             pkg install -y python git meson ninja
           run: |
-            git clone https://github.com/NoOrientationProgramming/code-orb.git --recursive
-            cd code-orb
+            git clone https://github.com/NoOrientationProgramming/SystemCore.git --recursive
+            cd SystemCore/tools/hello-world
             meson setup build-meson-native
             ninja -C build-meson-native
-            ./build-meson-native/codeorb --help
+            ./build-meson-native/introducing
 
