@@ -50,6 +50,7 @@ ChildExecuting::ChildExecuting()
 	//, mStartMs(0)
 	, mAsService(false)
 	, mDelayShutdown(false)
+	, mToldYa(false)
 {
 	mState = StStart;
 }
@@ -86,7 +87,18 @@ Success ChildExecuting::process()
 
 Success ChildExecuting::shutdown()
 {
-	procWrnLog("I am not used anymore!");
+	if (!mDelayShutdown)
+	{
+		procWrnLog("I am not used anymore!");
+		return Positive;
+	}
+
+	if (!mToldYa)
+	{
+		mToldYa = true;
+		procWrnLog("I will delay my shutdown.");
+	}
+
 	return Positive;
 }
 
@@ -96,7 +108,6 @@ void ChildExecuting::processInfo(char *pBuf, char *pBufEnd)
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
 #endif
 	dInfo("Service process\t\t%s\n", mAsService ? "Yes" : "No");
-
 	dInfo("Shutdown will be delayed\t%s\n", mDelayShutdown ? "Yes" : "No");
 }
 

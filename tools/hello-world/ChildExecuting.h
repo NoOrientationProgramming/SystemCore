@@ -68,6 +68,7 @@ private:
 
 	/* member variables */
 	//uint32_t mStartMs;
+	bool mToldYa;
 
 	/* static functions */
 
