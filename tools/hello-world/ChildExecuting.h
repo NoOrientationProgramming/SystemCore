@@ -67,10 +67,11 @@ private:
 	void processInfo(char *pBuf, char *pBufEnd);
 
 	/* member variables */
-	//uint32_t mStartMs;
+	uint32_t mStartMs;
 	bool mToldYa;
 
 	/* static functions */
+	uint32_t millis();
 
 	/* static variables */
 

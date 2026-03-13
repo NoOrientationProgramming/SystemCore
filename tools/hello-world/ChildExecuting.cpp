@@ -28,11 +28,14 @@
   SOFTWARE.
 */
 
+#include <chrono>
+
 #include "ChildExecuting.h"
 
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
 		gen(StMain) \
+		gen(StTalk) \
 
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
@@ -43,12 +46,13 @@ dProcessStateStr(ProcState);
 #endif
 
 using namespace std;
+using namespace chrono;
 
 ChildExecuting::ChildExecuting()
 	: Processing("ChildExecuting")
-	//, mStartMs(0)
 	, mAsService(false)
 	, mDelayShutdown(false)
+	, mStartMs(0)
 	, mToldYa(false)
 {
 	mState = StStart;
@@ -58,8 +62,8 @@ ChildExecuting::ChildExecuting()
 
 Success ChildExecuting::process()
 {
-	//uint32_t curTimeMs = millis();
-	//uint32_t diffMs = curTimeMs - mStartMs;
+	uint32_t curTimeMs = millis();
+	uint32_t diffMs = curTimeMs - mStartMs;
 	//Success success;
 #if 0
 	dStateTrace;
@@ -68,13 +72,29 @@ Success ChildExecuting::process()
 	{
 	case StStart:
 
+		if (!mAsService)
+		{
+			procInfLog("I will wait some time.");
+
+			mStartMs = curTimeMs;
+			mState = StTalk;
+			break;
+		}
+
 		mState = StMain;
 
 		break;
 	case StMain:
 
-		if (!mAsService)
-			return Positive;
+		break;
+	case StTalk:
+
+		if (diffMs < 5000)
+			break;
+
+		procInfLog("Waiting done.");
+
+		return Positive;
 
 		break;
 	default:
@@ -95,10 +115,9 @@ Success ChildExecuting::shutdown()
 	if (!mToldYa)
 	{
 		mToldYa = true;
-		procWrnLog("I will delay my shutdown.");
-		userInfLog(".");
-		userInfLog(".");
-		userInfLog(".");
+		procWrnLog("I am not used anymore!");
+		procWrnLog("I will delay my shutdown for one cycle.");
+		return Pending;
 	}
 
 	return Positive;
@@ -114,4 +133,11 @@ void ChildExecuting::processInfo(char *pBuf, char *pBufEnd)
 }
 
 /* static functions */
+
+uint32_t ChildExecuting::millis()
+{
+	auto now = steady_clock::now();
+	auto nowMs = time_point_cast<milliseconds>(now);
+	return (uint32_t)nowMs.time_since_epoch().count();
+}
 
