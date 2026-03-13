@@ -34,7 +34,6 @@
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
 		gen(StMain) \
-		gen(StNop) \
 
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
@@ -60,7 +59,7 @@ Success Introducing::process()
 {
 	//uint32_t curTimeMs = millis();
 	//uint32_t diffMs = curTimeMs - mStartMs;
-	//Success success;
+	Success success;
 	bool ok;
 #if 0
 	dStateTrace;
@@ -85,8 +84,14 @@ Success Introducing::process()
 		break;
 	case StMain:
 
-		break;
-	case StNop:
+		success = mpThreadedChild->success();
+		if (success == Pending)
+			break;
+
+		if (success != Positive)
+			return procErrLog(-1, "failed to execute child");
+
+		return Positive;
 
 		break;
 	default:

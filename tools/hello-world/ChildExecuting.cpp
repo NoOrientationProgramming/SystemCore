@@ -33,7 +33,6 @@
 #define dForEach_ProcState(gen) \
 		gen(StStart) \
 		gen(StMain) \
-		gen(StNop) \
 
 #define dGenProcStateEnum(s) s,
 dProcessStateEnum(ProcState);
@@ -74,8 +73,8 @@ Success ChildExecuting::process()
 		break;
 	case StMain:
 
-		break;
-	case StNop:
+		if (!mAsService)
+			return Positive;
 
 		break;
 	default:
@@ -97,6 +96,9 @@ Success ChildExecuting::shutdown()
 	{
 		mToldYa = true;
 		procWrnLog("I will delay my shutdown.");
+		userInfLog(".");
+		userInfLog(".");
+		userInfLog(".");
 	}
 
 	return Positive;
