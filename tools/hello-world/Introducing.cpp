@@ -128,8 +128,11 @@ void Introducing::childrenStart(int idx)
 	/*
 	 * Configuration area
 	 */
-	pChild->mAsService = idx != 2;
-	pChild->mDelayShutdown = idx == 3;
+	pChild->mAsService = idx != 1;
+	pChild->mDelayShutdown = idx == 2;
+
+	if (!pChild->mAsService)
+		mpThreadedChild = pChild;
 
 	/*
 	 * Start the process
@@ -141,13 +144,11 @@ void Introducing::childrenStart(int idx)
 		return;
 	}
 
-	mpThreadedChild = pChild;
-
 	/*
 	 * Make this a multi-threaded application.
 	 * Why? Because it's fun and easy!
 	 * Just one flag is needed.
-	 * In production systems you should create a new threads only if:
+	 * In production systems you should create new threads only if:
 	 * - There are two or more CPU-bound processes AND
 	 * - the target system hat two or more CPUs!
 	 */

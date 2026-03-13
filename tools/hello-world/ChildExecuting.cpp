@@ -95,6 +95,9 @@ void ChildExecuting::processInfo(char *pBuf, char *pBufEnd)
 #if 1
 	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
 #endif
+	dInfo("Service process\t\t%s\n", mAsService ? "Yes" : "No");
+
+	dInfo("Shutdown will be delayed\t%s\n", mDelayShutdown ? "Yes" : "No");
 }
 
 /* static functions */
