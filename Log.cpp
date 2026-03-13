@@ -219,7 +219,7 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 {
 	char *pBufStart = pBuf;
 	ssize_t len;
-	int res;
+	size_t res;
 
 #if DBG_LOG
 	fprintf(stderr, "# blockTimeAbsAdd()\n");
