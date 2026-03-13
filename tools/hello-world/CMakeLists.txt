@@ -20,37 +20,50 @@ set(DEFS
     CONFIG_PROC_HAVE_CORE_LOG=1
 )
 
-set(WARNINGS_LINUX
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
-    -Wfatal-errors
-    -Wreorder
-    -Wswitch-enum
-    -Wuseless-cast
-    -Wparentheses
-    -Wshift-overflow
-    -Wsign-compare
-    -Wzero-as-null-pointer-constant
-    -Wcast-align
-    -Wcast-qual
-    -Wcatch-value
-    -Wchar-subscripts
-    -Wswitch-default
-    -Wctor-dtor-privacy
-    -Wduplicated-branches
-    -Wduplicated-cond
-    -Wempty-body
-    -Wextra-semi
-    -Wfloat-equal
-    -Wformat
-    -Wformat-extra-args
-    -Wimplicit-fallthrough
-    -Wmissing-field-initializers
-    -Wnull-dereference
-    -Wshadow
-)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+    target_compile_options(${EXE_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+        -Wfatal-errors
+        -Wreorder
+        -Wswitch-enum
+        -Wuseless-cast
+        -Wparentheses
+        -Wshift-overflow
+        -Wsign-compare
+        -Wzero-as-null-pointer-constant
+        -Wcast-align
+        -Wcast-qual
+        -Wcatch-value
+        -Wchar-subscripts
+        -Wswitch-default
+        -Wctor-dtor-privacy
+        -Wduplicated-branches
+        -Wduplicated-cond
+        -Wempty-body
+        -Wextra-semi
+        -Wfloat-equal
+        -Wformat
+        -Wformat-extra-args
+        -Wimplicit-fallthrough
+        -Wmissing-field-initializers
+        -Wnull-dereference
+        -Wshadow
+    )
+
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+    target_compile_options(${EXE_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+    )
+
+endif()
 
 if(WIN32)
     set(EXE_NAME Introducing)
