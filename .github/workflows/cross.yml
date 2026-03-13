@@ -8,6 +8,9 @@ jobs:
 
   cross-build-run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/hello-world
     steps:
 
 # Toolchain + git
@@ -27,9 +30,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Initialize git submodules
         run: git submodule update --init --recursive
-
-      - name: Select Hello World
-        run: cd tools/hello-world
 
 # Cross
 
