@@ -502,7 +502,7 @@ static void toConsoleWrite(
 	fprintf(fOut, "%s\r\n", pWhatUser);
 #else
 	fprintf(fOut,
-			"\033[38:5:245m"
+			"\033[90m"
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			"%s%s"
 #endif
