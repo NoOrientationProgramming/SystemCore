@@ -43,7 +43,8 @@ public:
 		return new dNoThrow ChildExecuting;
 	}
 
-	bool mSpecial;
+	bool mAsService;
+	bool mDelayShutdown;
 
 protected:
 

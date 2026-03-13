@@ -128,7 +128,8 @@ void Introducing::childrenStart(int idx)
 	/*
 	 * Configuration area
 	 */
-	pChild->mSpecial = !idx;
+	pChild->mAsService = idx != 2;
+	pChild->mDelayShutdown = idx == 3;
 
 	/*
 	 * Start the process

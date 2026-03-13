@@ -48,7 +48,8 @@ using namespace std;
 ChildExecuting::ChildExecuting()
 	: Processing("ChildExecuting")
 	//, mStartMs(0)
-	, mSpecial(false)
+	, mAsService(false)
+	, mDelayShutdown(false)
 {
 	mState = StStart;
 }
