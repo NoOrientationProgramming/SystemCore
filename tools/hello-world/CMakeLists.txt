@@ -26,6 +26,16 @@ else()
     set(EXE_NAME introducing)
 endif()
 
+add_executable(${EXE_NAME} ${SRCS})
+
+target_include_directories(${EXE_NAME} PRIVATE ../..)
+
+target_compile_definitions(${EXE_NAME} PRIVATE ${DEFS})
+
+find_package(Threads REQUIRED)
+target_link_libraries(${EXE_NAME} PRIVATE Threads::Threads)
+
+# Compiler warnings
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     target_compile_options(${EXE_NAME} PRIVATE
@@ -71,53 +81,22 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 endif()
 
-add_executable(${EXE_NAME} ${SRCS})
-
-target_include_directories(${EXE_NAME}
-    PRIVATE
-    ../..
-)
-
-target_compile_definitions(${EXE_NAME}
-    PRIVATE
-    ${DEFS}
-)
-
-find_package(Threads REQUIRED)
-target_link_libraries(${EXE_NAME}
-    PRIVATE
-    Threads::Threads
-)
-
 if(WIN32)
 
-    target_compile_definitions(${EXE_NAME}
-        PRIVATE
+    target_compile_definitions(${EXE_NAME} PRIVATE
         _WIN32_WINNT=_WIN32_WINNT_WIN10
         WINVER=_WIN32_WINNT_WIN10
     )
 
-    target_link_libraries(${EXE_NAME}
-        PRIVATE
-        ws2_32
-    )
+    target_link_libraries(${EXE_NAME} PRIVATE ws2_32)
 
 else()
 
-    target_compile_options(${EXE_NAME}
-        PRIVATE
-        -std=gnu++11
-        ${WARNINGS_LINUX}
-    )
+    target_compile_options(${EXE_NAME} PRIVATE -std=gnu++11)
 
 endif()
 
 if(MSVC)
-
-    target_compile_options(${EXE_NAME}
-        PRIVATE
-        /std:c++17
-    )
-
+    target_compile_options(${EXE_NAME} PRIVATE /std:c++17)
 endif()
 
