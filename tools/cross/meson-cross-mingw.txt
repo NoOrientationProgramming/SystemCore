@@ -1,0 +1,17 @@
+
+# apt install gdb-multiarch mingw-w64
+# meson setup --cross-file tools-dev/cross/meson-cross-win64.txt build-meson-win64
+
+[binaries]
+c = 'x86_64-w64-mingw32-gcc'
+cpp = 'x86_64-w64-mingw32-g++'
+ar = 'x86_64-w64-mingw32-ar'
+strip = 'x86_64-w64-mingw32-strip'
+pkg-config = 'x86_64-w64-mingw32-pkg-config'
+windres = 'x86_64-w64-mingw32-windres'
+
+[host_machine]
+system = 'windows'
+cpu_family = 'x86'
+cpu = 'x86_64'
+endian = 'little'

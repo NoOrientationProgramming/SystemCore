@@ -1,0 +1,15 @@
+
+# apt install gdb-multiarch gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+# meson setup --cross-file tools-dev/cross/meson-cross-riscv.txt build-meson-riscv
+
+[binaries]
+c = 'riscv64-linux-gnu-gcc'
+cpp = 'riscv64-linux-gnu-g++'
+ar = 'riscv64-linux-gnu-ar'
+strip = 'riscv64-linux-gnu-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'riscv64'
+cpu = 'rv64gc'
+endian = 'little'

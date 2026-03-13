@@ -1,0 +1,16 @@
+
+# apt install gdb-multiarch gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+# meson setup --cross-file tools-dev/cross/meson-cross-rpi.txt build-meson-rpi
+
+[binaries]
+c = 'arm-linux-gnueabihf-gcc'
+cpp = 'arm-linux-gnueabihf-g++'
+ar = 'arm-linux-gnueabihf-ar'
+strip = 'arm-linux-gnueabihf-strip'
+pkg-config = 'arm-linux-gnueabihf-pkg-config'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'arm'
+cpu = 'arm'
+endian = 'little'
