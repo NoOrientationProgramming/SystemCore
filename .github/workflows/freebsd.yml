@@ -1,0 +1,25 @@
+
+name: FreeBSD
+
+on:
+  workflow_dispatch
+
+jobs:
+
+  freebsd-native-build-run:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Build in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg install -y python git meson ninja
+          run: |
+            git clone https://github.com/NoOrientationProgramming/code-orb.git --recursive
+            cd code-orb
+            meson setup build-meson-native
+            ninja -C build-meson-native
+            ./build-meson-native/codeorb --help
+
