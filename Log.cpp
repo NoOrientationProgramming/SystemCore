@@ -36,6 +36,14 @@
 #include <string.h>
 #endif
 
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+#ifndef _SSIZE_T_DEFINED
+typedef SSIZE_T ssize_t;
+#define _SSIZE_T_DEFINED
+#endif
+#endif
+
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdlib.h>
