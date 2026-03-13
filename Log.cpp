@@ -499,7 +499,7 @@ static void toConsoleWrite(
 	fprintf(fOut, "%s", pSeverity);
 
 	SetConsoleTextAttribute(hConsole, colorBkup);
-	fprintf(fOut, "%s\r\n", pWhatUser);
+	fprintf(fOut, "%s\n", pWhatUser);
 #else
 	fprintf(fOut,
 			"\033[90m"
@@ -508,7 +508,7 @@ static void toConsoleWrite(
 #endif
 			"%s%s"
 			"%s%s"
-			"%s%s\r\n",
+			"%s%s\n",
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			pTimeAbs, pTimeRel,
 #endif
