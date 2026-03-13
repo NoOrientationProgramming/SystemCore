@@ -20,6 +20,12 @@ set(DEFS
     CONFIG_PROC_HAVE_CORE_LOG=1
 )
 
+if(WIN32)
+    set(EXE_NAME Introducing)
+else()
+    set(EXE_NAME introducing)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     target_compile_options(${EXE_NAME} PRIVATE
@@ -63,12 +69,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror
     )
 
-endif()
-
-if(WIN32)
-    set(EXE_NAME Introducing)
-else()
-    set(EXE_NAME introducing)
 endif()
 
 add_executable(${EXE_NAME} ${SRCS})
