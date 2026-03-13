@@ -15,6 +15,8 @@ jobs:
 
 # Toolchain + git
 
+      - uses: actions/checkout@v4
+
       - name: Update
         run: sudo apt update
       - name: Install build tools cross
@@ -27,7 +29,6 @@ jobs:
       - name: Install build tools
         run: python -m pip install meson ninja
 
-      - uses: actions/checkout@v4
       - name: Initialize git submodules
         run: git submodule update --init --recursive
 
