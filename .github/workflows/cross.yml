@@ -19,12 +19,18 @@ jobs:
 # Toolchain + git
 
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Update
-        run: sudo apt update
       - name: Install build tools cross
-        run: sudo apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf gcc-riscv64-linux-gnu g++-riscv64-linux-gnu mingw-w64
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+            gcc-riscv64-linux-gnu g++-riscv64-linux-gnu \
+            mingw-w64
       - name: Setup mingw
+        if: matrix.target == 'mingw'
         run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
       - uses: actions/setup-python@v5
         with:
@@ -33,13 +39,10 @@ jobs:
       - name: Install build tools
         run: python -m pip install meson ninja
 
-      - name: Initialize git submodules
-        run: git submodule update --init --recursive
-
 # Build
 
-      - name: Setup build directory meson ${{ matrix.target }
+      - name: Setup build directory meson ${{ matrix.target }}
         run: meson setup --cross-file ../cross/meson-cross-${{ matrix.target }}.txt build-meson-${{ matrix.target }}
       - name: Build application meson ${{ matrix.target }}
-        run: ninja -C build-meson-${{ matrix.target }}
+        run: ninja -C build-meson-${{ matrix.target } -j${nproc}}
 
