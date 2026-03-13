@@ -33,10 +33,8 @@ jobs:
         if: matrix.target == 'mingw'
         run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
       - uses: actions/setup-python@v5
-        working-directory: .
         with:
           python-version: '3.10'
-          cache: 'pip'
       - name: Install build tools
         run: python -m pip install meson ninja
 
@@ -45,5 +43,5 @@ jobs:
       - name: Setup build directory meson ${{ matrix.target }}
         run: meson setup --cross-file ../cross/meson-cross-${{ matrix.target }}.txt build-meson-${{ matrix.target }}
       - name: Build application meson ${{ matrix.target }}
-        run: ninja -C build-meson-${{ matrix.target }} -j${nproc}
+        run: ninja -C build-meson-${{ matrix.target }} -j$(nproc)
 
