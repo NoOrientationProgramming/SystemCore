@@ -159,9 +159,9 @@ int main(int argc, char *argv[])
 
 	/*
 	 * Closing the application means
-	 * executing all "global destructors" which have been registered
+	 * executing all 'global destructors' which have been registered
 	 * in the process tree. For example:
-	 * Executing "close"-functions from external libraries.
+	 * Executing 'close'-functions from external libraries.
 	 */
 	Processing::applicationClose();
 

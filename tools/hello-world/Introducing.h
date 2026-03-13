@@ -39,6 +39,10 @@ class Introducing : public Processing
 
 public:
 
+	/*
+	 * All processes reside on the HEAP.
+	 * Exceptions are not recommended => dNoThrow
+	 */
 	static Introducing *create()
 	{
 		return new dNoThrow Introducing;
@@ -60,14 +64,52 @@ private:
 	 */
 
 	/* member functions */
+
+	/*
+	 * This is the _main_ function. It is used in EVERY SINGLE
+	 * process and is executed on every 'clock cycle'.
+	 * For all processes which are driven by the main thread,
+	 * the clock cycle is this odd combination of executing
+	 * multiple ticks and then sleep, as shown in main.cpp.
+	 * This is indented. It's a 'simple scheduler' which
+	 * is suitable for most projects.
+	 * You can adapt the main scheduler to your needs or
+	 * create your own 'clock domains' by using new threads,
+	 * thread pools, or other specialized schedulers.
+	 */
 	Success process();
+
+	/*
+	 * For debugging, every process can show some
+	 * information related to its work.
+	 * If this function is used, the result of the
+	 * print statements are visible in the process tree.
+	 * The SystemDebugging() process must be started
+	 * somewhere in the tree (usually root) to get this
+	 * information via: telnet :: 3000
+	 * This is an optional function. It can be removed.
+	 * In this case, only the process name is visible
+	 * in the tree when started.
+	 */
 	void processInfo(char *pBuf, char *pBufEnd);
 
+	/*
+	 * Internal functions for this 'Hello World' project.
+	 */
 	bool debuggerStart();
 	void childrenStart(int idx);
 
 	/* member variables */
+	/*
+	 * This variable is optional but
+	 * used for timeouts very often.
+	 */
 	//uint32_t mStartMs;
+	/*
+	 * A child can be supervised.
+	 * The pointer is valid as long as the child
+	 * hasn't been repelled.
+	 */
 	ChildExecuting *mpThreadedChild;
 
 	/* static functions */
