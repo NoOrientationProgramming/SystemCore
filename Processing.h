@@ -304,7 +304,10 @@ private:
 #else
 #define procStrrChr(s, c)		Processing::strrchr(s, c)
 #endif
-#define __PROC_FILENAME__ (procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : __FILE__)
+
+#define __PROC_FILENAME__ \
+	(procStrrChr(__FILE__, '/') ? procStrrChr(__FILE__, '/') + 1 : \
+	(procStrrChr(__FILE__, '\\') ? procStrrChr(__FILE__, '\\') + 1 : __FILE__))
 
 typedef void (*FuncEntryLogCreate)(
 			const int severity,
