@@ -1,7 +1,7 @@
 
 <h2 id="processing-start" style="display:none;"></h2>
 
-![GitHub](https://img.shields.io/github/license/NoOrientationProgramming/SystemCore?style=plastic&color=blue)
+[![GitHub](https://img.shields.io/github/license/NoOrientationProgramming/SystemCore?style=plastic&color=blue)](https://en.wikipedia.org/wiki/MIT_License)
 [![GitHub Release](https://img.shields.io/github/v/release/NoOrientationProgramming/SystemCore?color=blue&style=plastic)](https://github.com/NoOrientationProgramming/SystemCore/releases)
 [![Standard](https://img.shields.io/badge/standard-C%2B%2B11-blue.svg?style=plastic&logo=c%2B%2B)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
 
