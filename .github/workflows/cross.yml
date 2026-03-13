@@ -28,20 +28,23 @@ jobs:
       - name: Initialize git submodules
         run: git submodule update --init --recursive
 
+      - name: Select Hello World
+        run: cd tools/hello-world
+
 # Cross
 
       - name: Setup build directory meson ARM
-        run: meson setup --cross-file tools/cross/meson-cross-arm.txt build-meson-arm
+        run: meson setup --cross-file ../tools/cross/meson-cross-arm.txt build-meson-arm
       - name: Build application meson ARM
         run: ninja -C build-meson-arm
 
       - name: Setup build directory meson RISC-V
-        run: meson setup --cross-file tools/cross/meson-cross-riscv.txt build-meson-riscv
+        run: meson setup --cross-file ../tools/cross/meson-cross-riscv.txt build-meson-riscv
       - name: Build application meson RISC-V
         run: ninja -C build-meson-riscv
 
       - name: Setup build directory meson MinGW
-        run: meson setup --cross-file tools/cross/meson-cross-mingw.txt build-meson-mingw
+        run: meson setup --cross-file ../tools/cross/meson-cross-mingw.txt build-meson-mingw
       - name: Build application meson MinGW
         run: ninja -C build-meson-mingw
 
