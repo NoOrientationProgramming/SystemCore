@@ -32,9 +32,11 @@ Each task can run in its own thread for parallel execution.
   </kbd>
 </p>
 
-### Add to your project
+### Learn how to use it
 
-`git submodule add https://github.com/NoOrientationProgramming/SystemCore.git`
+- The [Hello World](https://github.com/NoOrientationProgramming/SystemCore/tree/main/tools/hello-world) can be found in this repository. Check it out! It has a lot of comments explaining the basics.
+- The [Tutorials](https://github.com/NoOrientationProgramming/NopTutorials) provide more information on how to delve into this wonderful (recursive) world ..
+- Another great example for using the SystemCore is [CodeOrb](https://github.com/NoOrientationProgramming/code-orb#codeorb-start)!
 
 ### Use Templates!
 
@@ -42,11 +44,9 @@ To implement a new process you can use the provided shell scripts on linux: [cpp
 
 Or just create your own..
 
-### Learn how to use it
+### Add to your project
 
-The [Tutorials](https://github.com/NoOrientationProgramming/NopTutorials) provide more information on how to delve into this wonderful (recursive) world ..
-
-Another great example for using the SystemCore is [CodeOrb](https://github.com/NoOrientationProgramming/code-orb#codeorb-start)!
+Just download the sources and compile.
 
 ### Requirements
 
