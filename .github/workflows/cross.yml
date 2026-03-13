@@ -44,5 +44,5 @@ jobs:
       - name: Setup build directory meson ${{ matrix.target }}
         run: meson setup --cross-file ../cross/meson-cross-${{ matrix.target }}.txt build-meson-${{ matrix.target }}
       - name: Build application meson ${{ matrix.target }}
-        run: ninja -C build-meson-${{ matrix.target }} -j${nproc}}
+        run: ninja -C build-meson-${{ matrix.target }} -j${nproc}
 
