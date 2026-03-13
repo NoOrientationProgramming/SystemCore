@@ -15,7 +15,7 @@ jobs:
         with:
           usesh: true
           prepare: |
-            pkg install -y python git meson ninja
+            pkg install -y python git meson ninja cmake
           run: |
             git clone https://github.com/NoOrientationProgramming/SystemCore.git --recursive
             cd SystemCore/tools/hello-world
