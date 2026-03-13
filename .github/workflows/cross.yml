@@ -33,6 +33,7 @@ jobs:
         if: matrix.target == 'mingw'
         run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
       - uses: actions/setup-python@v5
+        working-directory: .
         with:
           python-version: '3.10'
           cache: 'pip'
