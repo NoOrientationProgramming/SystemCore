@@ -154,7 +154,7 @@ int16_t entryLogSimpleCreate(
 	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
 #endif
 	FILE *pStream = isErr ? stderr : stdout;
-	int len;
+	ssize_t len;
 	va_list args;
 
 	va_start(args, msg);
@@ -172,7 +172,7 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
-static int pBufSaturated(int len, char * &pBuf, const char *pBufEnd)
+static int pBufSaturated(ssize_t len, char * &pBuf, const char *pBufEnd)
 {
 	if (len > pBufEnd - pBuf)
 		len = pBufEnd - pBuf;
@@ -210,7 +210,7 @@ static char *strErr(char *pBufStart, const char *pBufEnd)
 static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time_point &tLogged)
 {
 	char *pBufStart = pBuf;
-	int len;
+	ssize_t len;
 	int res;
 
 #if DBG_LOG
@@ -278,7 +278,7 @@ char *blockTimeRelAdd(
 	int tDiffSec = int(tDiff / 1000);
 	int tDiffMs = int(tDiff % 1000);
 	bool diffMaxed = false;
-	int len;
+	ssize_t len;
 
 #if DBG_LOG
 	fprintf(stderr, "# blockTimeRelAdd()\n");
@@ -325,7 +325,7 @@ static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 	}
 
 	uint32_t cntTime = pFctCntTimeCreate();
-	int len;
+	ssize_t len;
 
 	len = snprintf(pBuf, pBufEnd - pBuf,
 					"%*" PRIu32 "  ",
@@ -350,7 +350,7 @@ static char *blockWhereAdd(
 			const int line)
 {
 	char *pBufStart = pBuf;
-	int len;
+	ssize_t len;
 
 #if DBG_LOG
 	fprintf(stderr, "# blockWhereAdd() - a\n");
@@ -413,7 +413,7 @@ static char *blockSeverityAdd(
 			const int severity)
 {
 	char *pBufStart = pBuf;
-	int len;
+	ssize_t len;
 
 #if DBG_LOG
 	fprintf(stderr, "# blockSeverityAdd()\n");
@@ -436,7 +436,7 @@ static char *blockWhatUserAdd(
 			const char *msg, va_list args)
 {
 	char *pBufStart = pBuf;
-	int len;
+	ssize_t len;
 
 #if DBG_LOG
 	fprintf(stderr, "# blockWhatUserAdd()\n");
