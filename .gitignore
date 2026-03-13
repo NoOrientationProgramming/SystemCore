@@ -48,3 +48,4 @@ transactionsOut.json
 **/resources/invoice-paypal_in.pdf
 
 ext/
+build-*/
