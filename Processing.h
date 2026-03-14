@@ -424,7 +424,7 @@ inline void dInfoInternal(char * &pBuf, char *pBufEnd, const char *msg, ...)
 #if CONFIG_PROC_HAVE_LIB_STD_C
 	va_list args;
 	va_start(args, msg);
-	ssize_t lenDone = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
+	ssize_t lenDone = vsnprintf(pBuf, (size_t)(pBufEnd - pBuf), msg, args);
 	if (lenDone < 0)
 	{
 		va_end(args);

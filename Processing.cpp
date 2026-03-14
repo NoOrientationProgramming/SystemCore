@@ -493,7 +493,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 		}
 	}
 
-	return pBuf - pBufStart;
+	return (size_t)(pBuf - pBufStart);
 }
 
 void Processing::undrivenSet(Processing *pChild)
@@ -653,12 +653,12 @@ void Processing::sleepUsInternalDriveSet(size_t delayUs)
 
 void Processing::sleepInternalDriveSet(chrono::microseconds delay)
 {
-	sleepUsInternalDriveSet(delay.count());
+	sleepUsInternalDriveSet((size_t)delay.count());
 }
 
 void Processing::sleepInternalDriveSet(chrono::milliseconds delay)
 {
-	sleepUsInternalDriveSet(delay.count() * 1000);
+	sleepUsInternalDriveSet((size_t)delay.count() * 1000);
 }
 
 void Processing::numBurstInternalDriveSet(size_t numBurst)
@@ -1004,7 +1004,7 @@ size_t Processing::procId(char *pBuf, char *pBufEnd, const Processing *pProc)
 
 	dInfo("%s", pProc->mName);
 
-	return pBuf - pBufStart;
+	return (size_t)(pBuf - pBufStart);
 }
 
 size_t Processing::progressStr(char *pBuf, char *pBufEnd, const int val, const int maxVal)
@@ -1040,7 +1040,7 @@ size_t Processing::progressStr(char *pBuf, char *pBufEnd, const int val, const i
 
 	dInfo(" %*d / %d", maxValLen, val, maxVal);
 
-	return pBuf - pBufStart;
+	return (size_t)(pBuf - pBufStart);
 }
 
 // This area is used by the abstract process
