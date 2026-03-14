@@ -351,7 +351,8 @@ Success SystemCommanding::shutdown()
 
 Success SystemCommanding::autoCommandReceive()
 {
-	ssize_t lenReq, lenDone;
+	size_t lenReq;
+	ssize_t lenDone;
 	char *pEdit = mCmdInBuf[mIdxLineEdit];
 
 	*pEdit = 0;
@@ -388,8 +389,9 @@ Success SystemCommanding::autoCommandReceive()
 
 void SystemCommanding::dataReceive()
 {
-	ssize_t lenReq, lenPlanned, lenDone;
-	char buf[8];
+	size_t lenReq, lenPlanned;
+	ssize_t lenDone;
+	unsigned char buf[8];
 	Success success;
 	uint16_t key;
 
@@ -518,7 +520,7 @@ void SystemCommanding::cmdAutoComplete()
 			break;
 		}
 
-		ok = chInsert(*pNext);
+		ok = chInsert((uint16_t)*pNext);
 		if (!ok)
 			break;
 
@@ -920,8 +922,8 @@ bool SystemCommanding::cursorJump(uint16_t key)
 		if (!pPrev)
 			continue;
 
-		if (keyIsAlphaNum(*pPrev) == statePrev &&
-			keyIsAlphaNum(*pCursor) == stateCursor)
+		if (keyIsAlphaNum((uint16_t)*pPrev) == statePrev &&
+			keyIsAlphaNum((uint16_t)*pCursor) == stateCursor)
 			break;
 	}
 
@@ -1517,7 +1519,7 @@ void SystemCommanding::cmdHexDump(char *pArgs, char *pBuf, char *pBufEnd)
 		return;
 	}
 
-	hexDumpPrint(pBuf, pBufEnd, pData, len, NULL, 8);
+	hexDumpPrint(pBuf, pBufEnd, pData, (size_t)len, NULL, 8);
 }
 
 size_t SystemCommanding::hexDumpPrint(char *pBuf, char *pBufEnd,
@@ -1581,7 +1583,7 @@ size_t SystemCommanding::hexDumpPrint(char *pBuf, char *pBufEnd,
 		addressAbs += lenPrinted;
 	}
 
-	return pBuf - pBufStart;
+	return (size_t)(pBuf - pBufStart);
 }
 
 static bool commandSort(const SystemCommand &cmdFirst, const SystemCommand &cmdSecond)
