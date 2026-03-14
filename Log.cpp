@@ -256,7 +256,7 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	milliseconds durMillis = duration_cast<milliseconds>(dur);
 	dur -= durMillis;
 
-	len = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 					"%s  %02d:%02d:%02d.%03d ",
 					timeBuf,
 					int(durHours.count()), int(durMinutes.count()),
@@ -300,7 +300,7 @@ char *blockTimeRelAdd(
 		diffMaxed = true;
 	}
 
-	len = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 					"%c%d.%03d  ",
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
 	if (len < 0)
@@ -364,7 +364,7 @@ static char *blockWhereAdd(
 	fprintf(stderr, "# blockWhereAdd() - a\n");
 #endif
 
-	len = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 				"%-20s  ", function);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -377,7 +377,7 @@ static char *blockWhereAdd(
 
 	if (pProc)
 	{
-		len = snprintf(pBuf, pBufEnd - pBuf,
+		len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 				"%p ", pProc);
 		if (len < 0)
 			return strErr(pBufStart, pBufEnd);
@@ -389,7 +389,7 @@ static char *blockWhereAdd(
 		(void)pBufSaturated(len, pBuf, pBufEnd);
 	}
 
-	len = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 				"%s:%-4d  ", filename, line);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -427,7 +427,7 @@ static char *blockSeverityAdd(
 	fprintf(stderr, "# blockSeverityAdd()\n");
 #endif
 
-	len = snprintf(pBuf, pBufEnd - pBuf, "%s  ", tabStrSev[severity]);
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf), "%s  ", tabStrSev[severity]);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
@@ -450,7 +450,7 @@ static char *blockWhatUserAdd(
 	fprintf(stderr, "# blockWhatUserAdd()\n");
 #endif
 
-	len = vsnprintf(pBuf, pBufEnd - pBuf, msg, args);
+	len = vsnprintf(pBuf, (size_t)(pBufEnd - pBuf), msg, args);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
