@@ -94,7 +94,7 @@ static const char *tabStrSev[] = { "INV", "ERR", "WRN", "INF", "DBG", "COR" };
 static const WORD tabColors[] =
 {
 	7, /* default */	4, /* red */		6, /* yellow */
-	7, /* default */	3, /* cyan */		6, /* purple */
+	7, /* default */	3, /* cyan */		5, /* purple */
 };
 #else
 static const char *tabColors[] =
@@ -484,7 +484,7 @@ static void toConsoleWrite(
 	GetConsoleScreenBufferInfo(hConsole, &infoConsole);
 	WORD colorBkup = infoConsole.wAttributes;
 
-	SetConsoleTextAttribute(hConsole, tabColors[0]);
+	SetConsoleTextAttribute(hConsole, 8);
 	fprintf(fOut,
 #if CONFIG_PROC_LOG_HAVE_CHRONO
 			"%s%s"
