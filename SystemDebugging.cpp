@@ -238,7 +238,8 @@ bool SystemDebugging::disconnectRequestedCheck(TcpTransfering *pTrans)
 		return false;
 
 	char buf[31];
-	ssize_t lenReq, lenPlanned, lenDone;
+	size_t lenReq, lenPlanned;
+	ssize_t lenDone;
 
 	lenReq = sizeof(buf) - 1;
 	lenPlanned = lenReq;
