@@ -377,11 +377,11 @@ ssize_t TcpTransfering::read(void *pBuf, size_t lenReq)
 #ifdef _WIN32
 	numBytes = ::recv(mSocketFd, (char *)pBuf, (int)numBytes, 0);
 #else
-	numBytes = ::recv(mSocketFd, (char *)pBuf, numBytes, 0);
+	numBytes = ::recv(mSocketFd, (char *)pBuf, (size_t)numBytes, 0);
 #endif
 	//procDbgLog("received data. len: %d", numBytes);
 
-	mBytesReceived += numBytes;
+	mBytesReceived += (size_t)numBytes;
 
 	return numBytes;
 }
@@ -451,9 +451,9 @@ ssize_t TcpTransfering::send(const void *pData, size_t lenReq)
 			break;
 
 		pData = ((const uint8_t *)pData) + res;
-		lenReq -= res;
+		lenReq -= (size_t)res;
 
-		bytesSent += res;
+		bytesSent += (size_t)res;
 	}
 
 	if (bytesSent != lenBkup)
@@ -461,7 +461,7 @@ ssize_t TcpTransfering::send(const void *pData, size_t lenReq)
 
 	mBytesSent += bytesSent;
 
-	return bytesSent;
+	return (ssize_t)bytesSent;
 }
 
 void TcpTransfering::disconnect(int err)
