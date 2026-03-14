@@ -335,7 +335,7 @@ static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 	uint32_t cntTime = pFctCntTimeCreate();
 	ssize_t len;
 
-	len = snprintf(pBuf, pBufEnd - pBuf,
+	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 					"%*" PRIu32 "  ",
 					widthCntTime, cntTime);
 	if (len < 0)
