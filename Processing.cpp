@@ -1129,14 +1129,16 @@ void Processing::internalDrive(void *pProc)
 		for (i = 0; i < numBurstInternalDrive; ++i)
 			pChild->treeTick();
 
-		if (sleepInternalDriveUs)
-			this_thread::sleep_for(chrono::microseconds(sleepInternalDriveUs));
+		if (!pChild->progress())
+		{
+			undrivenSet(pChild);
+			break;
+		}
 
-		if (pChild->progress())
+		if (!sleepInternalDriveUs)
 			continue;
 
-		undrivenSet(pChild);
-		break;
+		this_thread::sleep_for(chrono::microseconds(sleepInternalDriveUs));
 	}
 }
 
