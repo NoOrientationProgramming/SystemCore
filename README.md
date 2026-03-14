@@ -35,7 +35,7 @@ Each task can run in its own thread for parallel execution.
 ### Learn how to use it
 
 - The [Hello World](https://github.com/NoOrientationProgramming/SystemCore/tree/main/tools/hello-world) can be found in this repository. Check it out! It has a lot of comments explaining the basics.
-- The [Tutorials](https://github.com/NoOrientationProgramming/NopTutorials) provide more information on how to delve into this wonderful (recursive) world ..
+- The [Examples](https://github.com/NoOrientationProgramming/NopExamples) provide more information on how to delve into this wonderful (recursive) world ..
 - Another great example for using the SystemCore is [CodeOrb](https://github.com/NoOrientationProgramming/code-orb#codeorb-start)!
 
 ### Use Templates!
