@@ -29,7 +29,7 @@ args = [
 ]
 
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-warningsLinux = [
+warningsGcc = [
 	'-Wall',
 	'-Wextra',
 	'-Wpedantic',
@@ -61,6 +61,29 @@ warningsLinux = [
 	'-Wshadow',
 ]
 
+warningsClang = [
+	'-Wall',
+	'-Wextra',
+	'-Wpedantic',
+	'-Werror',
+	'-Wno-gnu-zero-variadic-macro-arguments',
+	'-Wshadow',
+	'-Wsign-conversion',
+	'-Wnull-dereference',
+	'-Wdouble-promotion',
+	'-Wimplicit-fallthrough',
+	'-Wcast-qual',
+	'-Wcast-align',
+	'-Wnon-virtual-dtor',
+	'-Woverloaded-virtual',
+	'-Wfloat-equal',
+	'-Wswitch-enum',
+	'-Wmissing-declarations',
+	'-Wunreachable-code',
+	'-Wdocumentation',
+	'-Wthread-safety',
+]
+
 if host_machine.system() == 'windows'
 	args += '-D_WIN32_WINNT=_WIN32_WINNT_WIN10'
 	args += '-DWINVER=_WIN32_WINNT_WIN10'
@@ -76,7 +99,9 @@ endif
 if cxx.get_id() == 'msvc'
 	args += '/std:c++17'
 elif cxx.get_id() == 'gcc'
-	args += warningsLinux
+	args += warningsGcc
+elif cxx.get_id() == 'clang'
+	args += warningsClang
 endif
 
 # Dependencies
