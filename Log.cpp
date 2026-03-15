@@ -473,9 +473,6 @@ static void toConsoleWrite(
 			const char *pSeverity,
 			const char *pWhatUser)
 {
-	if (severity > levelLog)
-		return;
-
 	FILE *fOut = severity < 3 ? stderr : stdout;
 #ifdef _WIN32
 	HANDLE hConsole = GetStdHandle(severity < 3 ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
@@ -536,6 +533,9 @@ int16_t entryLogCreate(
 	lock_guard<mutex> lock(mtxPrint); // Guard not defined!
 #endif
 	if (severity < 1 || severity > 5)
+		return code;
+
+	if (severity > levelLog)
 		return code;
 
 	// ## MALLOC
