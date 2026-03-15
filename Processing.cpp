@@ -360,6 +360,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 	const char *pBufStart = pBuf;
 	const char *pBufLineStart;
 	char *pBufIter;
+	uint16_t numIndent;
 	int8_t n, lastChildInfoLine;
 	int8_t cntChildDrawn;
 
@@ -413,6 +414,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 	if (colored)
 		dInfo("\033[37m");
 #endif
+	numIndent = 2 * mLevelTree + 2;
 
 	if (detailed && mStateAbstract != PsFinished)
 	{
@@ -445,7 +447,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 				lastChildInfoLine = 1;
 			}
 
-			for (n = 0; n < 2 * mLevelTree + 2; ++n)
+			for (n = 0; n < numIndent; ++n)
 				dInfo(" ");
 
 			*pBufIter = 0; // terminate current line starting at pBufLineStart
@@ -484,7 +486,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 			if (cntChildDrawn < 11)
 				continue;
 
-			for (n = 0; n < 2 * mLevelTree + 2; ++n)
+			for (n = 0; n < numIndent; ++n)
 				dInfo(" ");
 
 			dInfo("..\r\n");
