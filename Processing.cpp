@@ -363,6 +363,7 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 	uint16_t numIndent;
 	int8_t n, lastChildInfoLine;
 	int8_t cntChildDrawn;
+	size_t numWritten;
 
 	if (mStatDrv & PsbDrvPrTreeDisable)
 		return 0;
@@ -479,9 +480,12 @@ size_t Processing::processTreeStr(char *pBuf, char *pBufEnd, bool detailed, bool
 		{
 			pChild = *pChildListElem++;
 #endif
-			pBuf += pChild->processTreeStr(pBuf, pBufEnd, detailed, colored);
+			numWritten = pChild->processTreeStr(pBuf, pBufEnd, detailed, colored);
 
-			++cntChildDrawn;
+			pBuf += numWritten;
+
+			if (numWritten)
+				++cntChildDrawn;
 
 			if (cntChildDrawn < 11)
 				continue;
