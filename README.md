@@ -28,7 +28,7 @@ Each task can run in its own thread for parallel execution.
 
 <p align="center">
   <kbd>
-    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/NopTutorials/main/doc/motivation-system-core.png" style="width: 800px; max-width:100%"/>
+    <img src="https://raw.githubusercontent.com/NoOrientationProgramming/NopExamples/t02_multithreading-mandelbrot/doc/SystemCore/motivation-system-core.png" style="width: 800px; max-width:100%"/>
   </kbd>
 </p>
 
