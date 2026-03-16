@@ -10,7 +10,7 @@ This would make us very happy! =)
 
 ## Create an issue
 
-You are using the `SystemCore` of [NoOrientationProgramming](https://github.com/NoOrientationProgramming) and encountered something strange you did not expect?
+You are using the `SystemCore` of [Fractal Programming](https://github.com/fractal-programming) and encountered something strange you did not expect?
 If you think this is a bug then please do not hesitate to create an issue. We will then check the situation.
 Try to make a clear description of
 - How to reproduce the behavior
@@ -25,5 +25,5 @@ Try to make a clear description of
 
 If you want to share something else with us, like a question, an idea or
 other stuff you can also open a discussion
-in the [Discussions](https://github.com/NoOrientationProgramming/NopTutorials/discussions) page of this repository.
+in the [Discussions](https://github.com/fractal-programming/NopExamples/discussions) page of this repository.
 We would be very pleased to see one of your projects using the Processing() structure as well!

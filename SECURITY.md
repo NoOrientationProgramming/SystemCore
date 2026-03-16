@@ -20,4 +20,4 @@ Example: `SystemCore-v1.25.4.1`
 
 ## Reporting a Vulnerability
 
-If you found a critical security issue please let us know by creating an [Issue](https://github.com/NoOrientationProgramming/ProcessingTutorials/issues) at the repository.
+If you found a critical security issue please let us know by creating an [Issue](https://github.com/fractal-programming/ProcessingTutorials/issues) at the repository.

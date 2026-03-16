@@ -255,9 +255,9 @@ The base structure for all software systems.
 ```
 License               MIT
 Required              Yes
-Project Page          https://github.com/NoOrientationProgramming
-Documentation         https://github.com/NoOrientationProgramming/SystemCore
-Sources               https://github.com/NoOrientationProgramming/SystemCore
+Project Page          https://github.com/fractal-programming
+Documentation         https://github.com/fractal-programming/SystemCore
+Sources               https://github.com/fractal-programming/SystemCore
 ```
 
 ## SEE ALSO
