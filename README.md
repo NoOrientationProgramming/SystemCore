@@ -28,14 +28,14 @@ Each task can run in its own thread for parallel execution.
 
 <p align="center">
   <kbd>
-    <img src="https://github.com/fractal-programming/NopExamples/blob/main/doc/SystemCore/motivation-system-core.png" style="width: 800px; max-width:100%"/>
+    <img src="https://github.com/fractal-programming/FrapExamples/blob/main/doc/SystemCore/motivation-system-core.png" style="width: 800px; max-width:100%"/>
   </kbd>
 </p>
 
 ### Learn how to use it
 
 - The [Hello World](https://github.com/fractal-programming/SystemCore/tree/main/tools/hello-world) can be found in this repository. Check it out! It has a lot of comments explaining the basics.
-- The [Examples](https://github.com/fractal-programming/NopExamples) provide more information on how to delve into this wonderful (recursive) world ..
+- The [Examples](https://github.com/fractal-programming/FrapExamples) provide more information on how to delve into this wonderful (recursive) world ..
 - Another great example for using the SystemCore is [CodeOrb](https://github.com/fractal-programming/code-orb#codeorb-start)!
 
 ### Use Templates!

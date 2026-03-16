@@ -25,5 +25,5 @@ Try to make a clear description of
 
 If you want to share something else with us, like a question, an idea or
 other stuff you can also open a discussion
-in the [Discussions](https://github.com/fractal-programming/NopExamples/discussions) page of this repository.
+in the [Discussions](https://github.com/fractal-programming/FrapExamples/discussions) page of this repository.
 We would be very pleased to see one of your projects using the Processing() structure as well!
