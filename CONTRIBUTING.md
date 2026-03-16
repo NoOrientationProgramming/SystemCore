@@ -1,5 +1,5 @@
 
-# Welcome to ProcessingTutorials contributing guide <!-- omit in toc -->
+# Welcome to Fractal Programming contributing guide <!-- omit in toc -->
 
 If you'd like to contribute to the project, first of all: Thank you!
 At the moment we have some options already.
