@@ -17,7 +17,7 @@ jobs:
           prepare: |
             pkg install -y python git meson ninja cmake
           run: |
-            git clone https://github.com/NoOrientationProgramming/SystemCore.git --recursive
+            git clone https://github.com/fractal-programming/SystemCore.git --recursive
             cd SystemCore/tools/hello-world
             meson setup build-meson-native
             ninja -C build-meson-native -j$(nproc)
