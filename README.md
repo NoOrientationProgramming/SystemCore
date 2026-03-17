@@ -34,9 +34,9 @@ Each task can run in its own thread for parallel execution.
 
 ### Learn how to use it
 
-- The [Hello World](https://github.com/fractal-programming/SystemCore/tree/main/tools/hello-world) can be found in this repository. Check it out! It has a lot of comments explaining the basics.
 - The [Examples](https://github.com/fractal-programming/FrapExamples) provide more information on how to delve into this wonderful (recursive) world ..
 - Another great example for using the SystemCore is [CodeOrb](https://github.com/fractal-programming/code-orb#codeorb-start)!
+- The [Hello World](https://github.com/fractal-programming/SystemCore/tree/main/tools/hello-world) can be found in this repository. Check it out! It has a lot of comments explaining the basics.
 
 ### Use Templates!
 
