@@ -20,6 +20,10 @@ A lightweight C++ framework for task scheduling and recursive multitasking acros
 
 Each task can run in its own thread for parallel execution.
 
+This framework forms the foundation of **Fractal System Architecture (FSA)** — a design approach based on self-similar processes, synchronized execution, and flow-based system composition.
+
+Learn more: https://github.com/fractal-programming
+
 ### Advantages
 - **Recursive structure** > Every system level uses the same building block
 - **Memory-safe design** > Process and data lifetimes are tied together, reducing leaks and other bugs
