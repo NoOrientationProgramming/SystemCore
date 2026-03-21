@@ -721,8 +721,7 @@ bool TcpTransfering::sockaddrInfoGet(struct sockaddr_storage &addr,
 								bool &isIPv6)
 {
 	char buf[INET6_ADDRSTRLEN];
-	size_t len = sizeof(buf);
-	const char *pRes;
+	const char *pRes = NULL;
 
 	if (addr.ss_family == AF_INET)
 	{
@@ -731,16 +730,16 @@ bool TcpTransfering::sockaddrInfoGet(struct sockaddr_storage &addr,
 		numPort = ntohs(pAddr->sin_port);
 		isIPv6 = false;
 
-		pRes = ::inet_ntop(pAddr->sin_family, &pAddr->sin_addr, buf, len);
+		pRes = ::inet_ntop(AF_INET, &pAddr->sin_addr, buf, sizeof(buf));
 	}
-	else
+	else if (addr.ss_family == AF_INET6)
 	{
 		struct sockaddr_in6 *pAddr = (struct sockaddr_in6 *)&addr;
 
 		numPort = ntohs(pAddr->sin6_port);
 		isIPv6 = true;
 
-		pRes = ::inet_ntop(pAddr->sin6_family, &pAddr->sin6_addr, buf, len);
+		pRes = ::inet_ntop(AF_INET6, &pAddr->sin6_addr, buf, sizeof(buf));
 	}
 
 	if (!pRes)
