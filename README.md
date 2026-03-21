@@ -2,8 +2,8 @@
 <h2 id="system-core-start" style="display:none;"></h2>
 
 [![GitHub](https://img.shields.io/github/license/fractal-programming/SystemCore?style=plastic&color=blue)](https://en.wikipedia.org/wiki/MIT_License)
-[![GitHub Release](https://img.shields.io/github/v/release/fractal-programming/SystemCore?color=blue&style=plastic)](https://github.com/fractal-programming/SystemCore/releases)
 [![Standard](https://img.shields.io/badge/standard-C%2B%2B11-blue.svg?style=plastic&logo=c%2B%2B)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
+[![GitHub Release](https://img.shields.io/github/v/release/fractal-programming/SystemCore?color=blue&style=plastic)](https://github.com/fractal-programming/SystemCore/releases)
 
 ![Windows](https://img.shields.io/github/actions/workflow/status/fractal-programming/SystemCore/windows.yml?style=plastic&logo=github&label=Windows)
 ![Linux](https://img.shields.io/github/actions/workflow/status/fractal-programming/SystemCore/linux.yml?style=plastic&logo=linux&logoColor=white&label=Linux)
