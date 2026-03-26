@@ -760,46 +760,21 @@ Processing *Processing::start(Processing *pChild, DriverMode driver)
 		procErrLog(-1, "could not start child. pointer to child is me");
 		return NULL;
 	}
-#if !CONFIG_PROC_HAVE_LIB_STD_CPP
-	if (mNumChildren >= mNumChildrenMax)
-	{
-		procErrLog(-2, "can't add child. maximum number of children reached");
-		return NULL;
-	}
-#endif
+
 	char childId[CONFIG_PROC_ID_BUFFER_SIZE];
 	procId(childId, childId + sizeof(childId), pChild);
 
 	procCoreLog("starting %s", childId);
 
-	pChild->mDriver = driver;
 	pChild->mLevelTree = mLevelTree + 1;
-	pChild->mLevelDriver = mLevelDriver;
-	pChild->mStatParent |= PsbParStarted;
-
-	// Add process to child list
-	procCoreLog("adding %s to child list", childId);
-	{
-#if CONFIG_PROC_HAVE_DRIVERS
-		procCoreLog("Locking mChildListMtx");
-		Guard lock(mChildListMtx);
-		procCoreLog("Locking mChildListMtx: done");
-#endif
-#if CONFIG_PROC_HAVE_LIB_STD_CPP
-		mChildList.push_back(pChild);
-		++mNumChildren;
-#else
-		childElemAdd(pChild);
-#endif
-	}
-	procCoreLog("adding %s to child list: done", childId);
+	pChild->mDriver = driver;
 
 	// Optionally: Create and start new driver
-	if (driver == DrivenByNewInternalDriver)
+	if (driver == DrivenByNewInternalDriver && !pChild->mpDriver)
 	{
 #if CONFIG_PROC_HAVE_DRIVERS
 		procCoreLog("using new internal driver for %s", childId);
-		++pChild->mLevelDriver;
+		pChild->mLevelDriver = mLevelDriver + 1;
 
 		procCoreLog("creating new internal driver");
 		pChild->mpDriver = pFctDriverInternalCreate(pFctInternalDrive, pChild, pChild->mpConfigDriver);
@@ -810,7 +785,7 @@ Processing *Processing::start(Processing *pChild, DriverMode driver)
 			procWrnLog("could not create internal driver. switching back to parental drive");
 
 			pChild->mDriver = DrivenByParent;
-			--pChild->mLevelDriver;
+			pChild->mLevelDriver = mLevelDriver;
 		} else
 			procCoreLog("creating new internal driver: done");
 #else
@@ -821,9 +796,38 @@ Processing *Processing::start(Processing *pChild, DriverMode driver)
 	else if (driver == DrivenByExternalDriver)
 	{
 		procCoreLog("using external driver for %s", childId);
-		++pChild->mLevelDriver;
-	} else
+		pChild->mLevelDriver = mLevelDriver + 1;
+	}
+	else if (driver == DrivenByParent)
+	{
 		procCoreLog("using parent as driver for %s", childId);
+		pChild->mLevelDriver = mLevelDriver;
+	}
+
+	// Add process to child list
+	if (!(pChild->mStatParent & PsbParStarted))
+	{
+		procCoreLog("adding %s to child list", childId);
+#if CONFIG_PROC_HAVE_DRIVERS
+		procCoreLog("Locking mChildListMtx");
+		Guard lock(mChildListMtx);
+		procCoreLog("Locking mChildListMtx: done");
+#endif
+#if CONFIG_PROC_HAVE_LIB_STD_CPP
+		mChildList.push_back(pChild);
+		++mNumChildren;
+#else
+		if (mNumChildren >= mNumChildrenMax)
+		{
+			procErrLog(-2, "can't add child. maximum number of children reached");
+			return NULL;
+		}
+
+		childElemAdd(pChild);
+#endif
+		pChild->mStatParent |= PsbParStarted;
+		procCoreLog("adding %s to child list: done", childId);
+	}
 
 	procCoreLog("starting %s: done", childId);
 
