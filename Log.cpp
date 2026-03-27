@@ -188,23 +188,19 @@ static int pBufSaturated(ssize_t len, char * &pBuf, const char *pBufEnd)
 	pBuf += len;
 
 	int saturated = pBuf == pBufEnd;
-
 #if DBG_LOG
 	if (saturated)
 		fprintf(stderr, "pBufSaturated()\n");
 #endif
-
 	return saturated;
 }
 
 static char *strErr(char *pBufStart, const char *pBufEnd)
 {
 	char *pBuf = pBufStart;
-
 #if DBG_LOG
 	fprintf(stderr, "strErr()\n");
 #endif
-
 	for (; pBuf < pBufEnd; ++pBuf)
 		*pBuf = pBuf == pBufStart ? '-' : ' ';
 
@@ -220,11 +216,9 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	char *pBufStart = pBuf;
 	ssize_t len;
 	size_t res;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockTimeAbsAdd()\n");
 #endif
-
 	// build day
 	time_t tTt = system_clock::to_time_t(tLogged);
 	char timeBuf[32];
@@ -263,7 +257,6 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 					int(durSecs.count()), int(durMillis.count()));
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
-
 #if DBG_LOG
 	fprintf(stderr, "len = %d\n", len);
 #endif
@@ -287,11 +280,9 @@ char *blockTimeRelAdd(
 	int tDiffMs = int(tDiff % 1000);
 	bool diffMaxed = false;
 	ssize_t len;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockTimeRelAdd()\n");
 #endif
-
 	if (tDiffSec > cLogDiffSecMax)
 	{
 		tDiffSec = cLogDiffSecMax;
@@ -317,11 +308,9 @@ char *blockTimeRelAdd(
 static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 {
 	char *pBufStart = pBuf;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockTimeCntAdd()\n");
 #endif
-
 	if (!pFctCntTimeCreate)
 	{
 		if (pBuf < pBufEnd) *pBuf++ = 0;
@@ -359,20 +348,16 @@ static char *blockWhereAdd(
 {
 	char *pBufStart = pBuf;
 	ssize_t len;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockWhereAdd() - a\n");
 #endif
-
 	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
 				"%-20s  ", function);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
-
 #if DBG_LOG
 	fprintf(stderr, "# blockWhereAdd() - b\n");
 #endif
-
 	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	if (pProc)
@@ -381,11 +366,9 @@ static char *blockWhereAdd(
 				"%p ", pProc);
 		if (len < 0)
 			return strErr(pBufStart, pBufEnd);
-
 #if DBG_LOG
 		fprintf(stderr, "# blockWhereAdd() - c\n");
 #endif
-
 		(void)pBufSaturated(len, pBuf, pBufEnd);
 	}
 
@@ -393,11 +376,9 @@ static char *blockWhereAdd(
 				"%s:%-4d  ", filename, line);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
-
 #if DBG_LOG
 	fprintf(stderr, "# blockWhereAdd() - d\n");
 #endif
-
 	(void)pBufSaturated(len, pBuf, pBufEnd);
 
 	// padding
@@ -422,11 +403,9 @@ static char *blockSeverityAdd(
 {
 	char *pBufStart = pBuf;
 	ssize_t len;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockSeverityAdd()\n");
 #endif
-
 	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf), "%s  ", tabStrSev[severity]);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -445,11 +424,9 @@ static char *blockWhatUserAdd(
 {
 	char *pBufStart = pBuf;
 	ssize_t len;
-
 #if DBG_LOG
 	fprintf(stderr, "# blockWhatUserAdd()\n");
 #endif
-
 	len = vsnprintf(pBuf, (size_t)(pBufEnd - pBuf), msg, args);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -599,7 +576,6 @@ int16_t entryLogCreate(
 			pSeverity,
 			pWhatUser);
 	}
-
 #if DBG_LOG
 	fprintf(stderr, "pBufStart  = %p,   0,   0,   0\n", pBufStart);
 	fprintf(stderr, "pTimeAbs   = %p, %3ld, %3ld, %3ld, '%s'\n", pTimeAbs, pTimeAbs - pBufStart, pTimeAbs - pBufStart, strlen(pTimeAbs), pTimeAbs);
@@ -610,14 +586,11 @@ int16_t entryLogCreate(
 	fprintf(stderr, "pWhatUser  = %p, %3ld, %3ld, %3ld, '%s'\n", pWhatUser, pWhatUser - pBufStart, pWhatUser - pSeverity, strlen(pWhatUser), pWhatUser);
 	fprintf(stderr, "pBufEnd    = %p, %3ld, %3ld, %3ld\n", pBufEnd, pBufEnd - pBufStart, pBufEnd - pWhatUser, strlen(pBufEnd));
 #endif
-
 	// ## FREE
 	free(pBufStart);
-
 #if DBG_LOG
 	exit(1);
 #endif
-
 	return code;
 }
 
