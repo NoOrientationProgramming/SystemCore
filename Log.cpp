@@ -134,6 +134,11 @@ void levelLogSet(int lvl)
 	levelLog = lvl;
 }
 
+int levelLogGet()
+{
+	return levelLog;
+}
+
 void entryLogCreateSet(FuncEntryLogCreate pFct)
 {
 #if CONFIG_PROC_HAVE_DRIVERS
