@@ -185,6 +185,11 @@ int16_t entryLogSimpleCreate(
 	return code;
 }
 
+static size_t spaceBufLeft(const char *pBuf, const char *pBufEnd)
+{
+	return (pBufEnd > pBuf) ? (size_t)(pBufEnd - pBuf) : 0;
+}
+
 static int pBufSaturated(ssize_t len, char * &pBuf, const char *pBufEnd)
 {
 	if (len > pBufEnd - pBuf)
@@ -255,7 +260,7 @@ static char *blockTimeAbsAdd(char *pBuf, const char *pBufEnd, system_clock::time
 	milliseconds durMillis = duration_cast<milliseconds>(dur);
 	dur -= durMillis;
 
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 					"%s  %02d:%02d:%02d.%03d ",
 					timeBuf,
 					int(durHours.count()), int(durMinutes.count()),
@@ -296,7 +301,7 @@ char *blockTimeRelAdd(
 		diffMaxed = true;
 	}
 
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 					"%c%d.%03d  ",
 					diffMaxed ? '>' : '+', tDiffSec, tDiffMs);
 	if (len < 0)
@@ -329,7 +334,7 @@ static char *blockTimeCntAdd(char *pBuf, const char *pBufEnd)
 	uint32_t cntTime = pFctCntTimeCreate();
 	ssize_t len;
 
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 					"%*" PRIu32 "  ",
 					widthCntTime, cntTime);
 	if (len < 0)
@@ -356,7 +361,7 @@ static char *blockWhereAdd(
 #if DBG_LOG
 	fprintf(stderr, "# blockWhereAdd() - a\n");
 #endif
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 				"%-20s  ", function);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -367,7 +372,7 @@ static char *blockWhereAdd(
 
 	if (pProc)
 	{
-		len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+		len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 				"%p ", pProc);
 		if (len < 0)
 			return strErr(pBufStart, pBufEnd);
@@ -377,7 +382,7 @@ static char *blockWhereAdd(
 		(void)pBufSaturated(len, pBuf, pBufEnd);
 	}
 
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf),
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd),
 				"%s:%-4d  ", filename, line);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
@@ -411,7 +416,7 @@ static char *blockSeverityAdd(
 #if DBG_LOG
 	fprintf(stderr, "# blockSeverityAdd()\n");
 #endif
-	len = snprintf(pBuf, (size_t)(pBufEnd - pBuf), "%s  ", tabStrSev[severity]);
+	len = snprintf(pBuf, spaceBufLeft(pBuf, pBufEnd), "%s  ", tabStrSev[severity]);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
@@ -432,7 +437,7 @@ static char *blockWhatUserAdd(
 #if DBG_LOG
 	fprintf(stderr, "# blockWhatUserAdd()\n");
 #endif
-	len = vsnprintf(pBuf, (size_t)(pBufEnd - pBuf), msg, args);
+	len = vsnprintf(pBuf, spaceBufLeft(pBuf, pBufEnd), msg, args);
 	if (len < 0)
 		return strErr(pBufStart, pBufEnd);
 
