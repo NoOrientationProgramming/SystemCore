@@ -1618,7 +1618,10 @@ void cmdReg(
 		const string &desc,
 		const string &group)
 {
-	dbgLog("registering command %s", id.c_str());
+	bool isExternal = group != cInternalCmdCls;
+
+	if (isExternal)
+		dbgLog("registering command %s", id.c_str());
 #if CONFIG_PROC_HAVE_DRIVERS
 	Guard lock(mtxCmds);
 #endif
@@ -1647,6 +1650,7 @@ void cmdReg(
 	cmds.push_back(newCmd);
 	cmds.sort(commandSort);
 
-	dbgLog("registering command %s: done", id.c_str());
+	if (isExternal)
+		dbgLog("registering command %s: done", id.c_str());
 }
 
