@@ -790,7 +790,6 @@ Processing *Processing::start(Processing *pChild, DriverMode driver)
 				pChild->mLevelDriver = mLevelDriver;
 			} else
 				procCoreLog("creating new internal driver: done");
-			}
 		}
 #else
 		procWrnLog("system does not have internal drivers. switching back to parental drive");
