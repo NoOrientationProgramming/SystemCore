@@ -770,24 +770,28 @@ Processing *Processing::start(Processing *pChild, DriverMode driver)
 	pChild->mDriver = driver;
 
 	// Optionally: Create and start new driver
-	if (driver == DrivenByNewInternalDriver && !pChild->mpDriver)
+	if (driver == DrivenByNewInternalDriver)
 	{
 #if CONFIG_PROC_HAVE_DRIVERS
-		procCoreLog("using new internal driver for %s", childId);
-		pChild->mLevelDriver = mLevelDriver + 1;
-
-		procCoreLog("creating new internal driver");
-		pChild->mpDriver = pFctDriverInternalCreate(pFctInternalDrive, pChild, pChild->mpConfigDriver);
-		pChild->mpConfigDriver = NULL;
-
 		if (!pChild->mpDriver)
 		{
-			procWrnLog("could not create internal driver. switching back to parental drive");
+			procCoreLog("using new internal driver for %s", childId);
+			pChild->mLevelDriver = mLevelDriver + 1;
 
-			pChild->mDriver = DrivenByParent;
-			pChild->mLevelDriver = mLevelDriver;
-		} else
-			procCoreLog("creating new internal driver: done");
+			procCoreLog("creating new internal driver");
+			pChild->mpDriver = pFctDriverInternalCreate(pFctInternalDrive, pChild, pChild->mpConfigDriver);
+			pChild->mpConfigDriver = NULL;
+
+			if (!pChild->mpDriver)
+			{
+				procWrnLog("could not create internal driver. switching back to parental drive");
+
+				pChild->mDriver = DrivenByParent;
+				pChild->mLevelDriver = mLevelDriver;
+			} else
+				procCoreLog("creating new internal driver: done");
+			}
+		}
 #else
 		procWrnLog("system does not have internal drivers. switching back to parental drive");
 		pChild->mDriver = DrivenByParent;
