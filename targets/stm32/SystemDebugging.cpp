@@ -363,7 +363,6 @@ void SystemDebugging::commandInterpret()
 				continue;
 
 			pCmd->pFctExec(pArg, pBuf, pBufEnd);
-
 			*pBufEnd = 0;
 
 			mStateCmd = StCmdSendStart;
