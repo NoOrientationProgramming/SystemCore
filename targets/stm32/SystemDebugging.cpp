@@ -350,6 +350,9 @@ void SystemDebugging::commandInterpret()
 		pCmd = commands;
 		for (size_t i = 0; i < dNumCmds; ++i, ++pCmd)
 		{
+			if (!pCmd->pId)
+				break;
+
 			idMatched = !strcmp(pCmd->pId, pIn);
 
 			shortMatched = 0;
