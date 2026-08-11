@@ -439,10 +439,10 @@ ssize_t TcpTransfering::send(const void *pData, size_t lenReq)
 			int numErr = errGet();
 #ifdef _WIN32
 			if (numErr == WSAEWOULDBLOCK || numErr == WSAEINPROGRESS)
-				return 0; // std case and ok
+				break; // std case and ok; report bytesSent so far (0 if none yet), nothing is lost
 #else
 			if (numErr == EWOULDBLOCK || numErr == EINPROGRESS || numErr == EAGAIN)
-				return 0; // std case and ok
+				break; // std case and ok; report bytesSent so far (0 if none yet), nothing is lost
 #endif
 			disconnect(numErr);
 
@@ -460,7 +460,7 @@ ssize_t TcpTransfering::send(const void *pData, size_t lenReq)
 	}
 
 	if (bytesSent != lenBkup)
-		procWrnLog("not all data has been sent");
+		procWrnLog("%d of %d bytes were sent", (int)bytesSent, (int)lenBkup);
 
 	mBytesSent += bytesSent;
 
